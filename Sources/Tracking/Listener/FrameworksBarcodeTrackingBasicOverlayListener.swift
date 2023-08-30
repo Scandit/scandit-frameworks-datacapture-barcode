@@ -8,11 +8,6 @@ import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
 public class FrameworksBarcodeTrackingBasicOverlayListener: NSObject, BarcodeTrackingBasicOverlayDelegate {
-    private enum Constants {
-        static let brushForTrackedBarcode = "BarcodeTrackingBasicOverlayListener.brushForTrackedBarcode"
-        static let didTapOnTrackedBarcode = "BarcodeTrackingBasicOverlayListener.didTapTrackedBarcode"
-    }
-
     private let emitter: Emitter
 
     public init(emitter: Emitter) {
@@ -21,15 +16,15 @@ public class FrameworksBarcodeTrackingBasicOverlayListener: NSObject, BarcodeTra
 
     private var isEnabled = AtomicBool()
 
-    private let brushForTrackedBarcodeEvent = Event(name: Constants.brushForTrackedBarcode)
-    private let didTapOnTrackedBarcodeEvent = Event(name: Constants.didTapOnTrackedBarcode)
+    private let brushForTrackedBarcodeEvent = Event(.brushForTrackedBarcode)
+    private let didTapOnTrackedBarcodeEvent = Event(.didTapOnTrackedBarcode)
 
     public func barcodeTrackingBasicOverlay(_ overlay: BarcodeTrackingBasicOverlay,
                                             brushFor trackedBarcode: TrackedBarcode) -> Brush? {
-        guard isEnabled.value, emitter.hasListener(for: brushForTrackedBarcodeEvent) else { return nil }
+        guard isEnabled.value, emitter.hasListener(for: brushForTrackedBarcodeEvent) else { return overlay.brush }
         brushForTrackedBarcodeEvent.emit(on: emitter,
                                          payload: ["trackedBarcode": trackedBarcode.jsonString])
-        return nil
+        return overlay.brush
     }
 
     public func barcodeTrackingBasicOverlay(_ overlay: BarcodeTrackingBasicOverlay,

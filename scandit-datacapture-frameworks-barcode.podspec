@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.module_name             = "ScanditFrameworksBarcode"
   s.header_dir              = "ScanditFrameworksBarcode"
 
-  s.dependency 'ScanditBarcodeCapture', '= 6.19.0-beta.0'
+  s.dependency 'ScanditBarcodeCapture', '= 6.19.0-beta.1'
     
   s.dependency "scandit-datacapture-frameworks-core", "= #{package['version']}"
 end

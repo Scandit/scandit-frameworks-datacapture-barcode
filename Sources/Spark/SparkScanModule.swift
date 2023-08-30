@@ -81,7 +81,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func addViewToContainer(_ container: UIView, jsonString: String, result: FrameworksResult) {
-        let block = {
+        let block = { [weak self] in
+            guard let self = self else { return }
             guard let context = self.dataCaptureContext else {
                 Log.error(SparkScanError.nilContext)
                 result.reject(error: SparkScanError.nilContext)
@@ -128,11 +129,12 @@ public class SparkScanModule: NSObject, FrameworkModule {
             }
             result.success(result: nil)
         }
-        dispatchMainSync(block)
+        dispatchMain(block)
     }
 
     public func updateView(viewJson: String, result: FrameworksResult) {
-        dispatchMainSync {
+        dispatchMain { [weak self] in
+            guard let self = self else { return }
             do {
                 guard let view = self.sparkScanView else {
                     let error = SparkScanError.nilView
@@ -172,7 +174,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func emitFeedback(feedbackJson: String, result: FrameworksResult) {
-        let block = {
+        let block = { [weak self] in
+            guard let self = self else { return }
             guard let view = self.sparkScanView else {
                 let error = SparkScanError.nilView
                 Log.error(error)
@@ -203,18 +206,19 @@ public class SparkScanModule: NSObject, FrameworkModule {
             view.emitFeedback(feedback)
             result.success(result: nil)
         }
-        dispatchMainSync(block)
+        dispatchMain(block)
     }
 
     public func pauseScanning() {
-        dispatchMainSync { [weak self] in
+        dispatchMain { [weak self] in
             self?.sparkScanView?.pauseScanning()
         }
 
     }
 
     public func startScanning(result: FrameworksResult) {
-        dispatchMainSync {
+        dispatchMain { [weak self] in
+            guard let self = self else { return }
             guard let view = self.sparkScanView else {
                 let error = SparkScanError.nilView
                 Log.error(error)
@@ -227,7 +231,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func onResume(result: FrameworksResult) {
-        dispatchMainSync {
+        dispatchMain { [weak self] in
+            guard let self = self else { return }
             guard let view = self.sparkScanView else {
                 let error = SparkScanError.nilView
                 Log.error(error)
@@ -240,7 +245,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func onPause(result: FrameworksResult) {
-        dispatchMainSync {
+        dispatchMain { [weak self] in
+            guard let self = self else { return }
             guard let view = self.sparkScanView else {
                 let error = SparkScanError.nilView
                 Log.error(error)
@@ -253,7 +259,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func showToast(text: String, result: FrameworksResult) {
-        dispatchMainSync {
+        dispatchMain { [weak self] in
+            guard let self = self else { return }
             guard let view = self.sparkScanView else {
                 let error = SparkScanError.nilView
                 Log.error(error)

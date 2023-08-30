@@ -121,6 +121,15 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
         trackedBrushProvider.finishCallback(brushJson: brushJson, selectionIdentifier: selectionIdentifier)
     }
 
+    public func setTextForAimToSelectAutoHint(text:String, result: FrameworksResult) {
+        guard let overlay = barcodeSelectionBasicOverlay else {
+            result.reject(error: BarcodeSelectionError.nilOverlay)
+            return
+        }
+        overlay.setTextForAimToSelectAutoHint(text)
+        result.success(result: nil)
+    }
+    
     public func setTrackedBrushProvider(result: FrameworksResult) {
         guard let overlay = barcodeSelectionBasicOverlay else {
             result.reject(error: BarcodeSelectionError.nilOverlay)

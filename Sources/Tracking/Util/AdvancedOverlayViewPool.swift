@@ -8,8 +8,30 @@ import ScanditBarcodeCapture
 import ScanditFrameworksCore
 import UIKit
 
+fileprivate class TapGestureRecognizerWithClosure: UITapGestureRecognizer {
+    private let action: () -> Void
+
+    init(_ action: @escaping () -> Void) {
+        self.action = action
+        super.init(target: nil, action: nil)
+        addTarget(self, action: #selector(execute))
+    }
+
+    @objc
+    private func execute() {
+        action()
+    }
+}
+
 class AdvancedOverlayViewPool {
+    private let emitter: Emitter
     private var views: [Int: UIImageView] = [:]
+
+    private let widgetForTrackedBarcodeEvent = Event(.didTapViewForTrackedBarcode)
+
+    init(emitter: Emitter) {
+        self.emitter = emitter
+    }
 
     func getOrCreateView(barcode: TrackedBarcode, widgetData: Data) -> UIImageView? {
         let block: () -> UIImageView? = {
@@ -21,7 +43,7 @@ class AdvancedOverlayViewPool {
                 imageView = self.views[barcode.identifier]!
                 imageView.image = image
             } else {
-                imageView = UIImageView(image: image)
+                imageView = self.createImageView(with: image, trackedBarcode: barcode)
             }
             return imageView
         }
@@ -38,6 +60,24 @@ class AdvancedOverlayViewPool {
         dispatchMainSync {
             views.removeAll()
         }
+    }
+
+    private func createImageView(with image: UIImage, trackedBarcode: TrackedBarcode) -> UIImageView {
+        let imageView = UIImageView(image: image)
+        let scale = UIScreen.main.scale
+        imageView.frame.size = CGSize(width: imageView.frame.size.width / scale,
+                                      height: imageView.frame.size.height / scale)
+        self.views[trackedBarcode.identifier] = imageView
+        
+        let tapRecognizer = TapGestureRecognizerWithClosure { [weak self] in
+            guard let self = self else { return }
+            self.widgetForTrackedBarcodeEvent.emit(on: self.emitter,
+                                                   payload: ["trackedBarcode": trackedBarcode.jsonString])
+        }
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(tapRecognizer)
+
+        return imageView
     }
 
     private func parse(data: Data) -> UIImage? {

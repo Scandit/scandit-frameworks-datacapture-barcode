@@ -8,12 +8,6 @@ import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
 public class FrameworksBarcodeTrackingAdvancedOverlayListener: NSObject, BarcodeTrackingAdvancedOverlayDelegate {
-    private enum Constants {
-        static let offsetForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.offsetForTrackedBarcode"
-        static let anchorForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.anchorForTrackedBarcode"
-        static let widgetForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.viewForTrackedBarcode"
-    }
-
     private let emitter: Emitter
 
     public init(emitter: Emitter) {
@@ -22,9 +16,9 @@ public class FrameworksBarcodeTrackingAdvancedOverlayListener: NSObject, Barcode
 
     private var isEnabled = AtomicBool()
 
-    private let offsetForTrackedBarcodeEvent = Event(name: Constants.offsetForTrackedBarcode)
-    private let anchorForTrackedBarcodeEvent = Event(name: Constants.anchorForTrackedBarcode)
-    private let widgetForTrackedBarcodeEvent = Event(name: Constants.widgetForTrackedBarcode)
+    private let offsetForTrackedBarcodeEvent = Event(.offsetForTrackedBarcode)
+    private let anchorForTrackedBarcodeEvent = Event(.anchorForTrackedBarcode)
+    private let widgetForTrackedBarcodeEvent = Event(.widgetForTrackedBarcode)
 
     public func barcodeTrackingAdvancedOverlay(_ overlay: BarcodeTrackingAdvancedOverlay,
                                                viewFor trackedBarcode: TrackedBarcode) -> UIView? {

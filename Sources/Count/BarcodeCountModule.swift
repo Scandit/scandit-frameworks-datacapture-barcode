@@ -14,6 +14,7 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
     private let viewUiListener: FrameworksBarcodeCountViewUIListener
     private let barcodeCountDeserializer: BarcodeCountDeserializer
     private let barcodeCountViewDeserializer: BarcodeCountViewDeserializer
+    private let barcodeCountDeserializerDelegate = BarcodeCountDeserializerDelegateImpl()
 
     public init(barcodeCountListener: FrameworksBarcodeCountListener,
                 captureListListener: FrameworksBarcodeCountCaptureListListener,
@@ -27,6 +28,7 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
         self.viewUiListener = viewUiListener
         self.barcodeCountDeserializer = barcodeCountDeserializer
         self.barcodeCountViewDeserializer = barcodeCountViewDeserializer
+        barcodeCountDeserializer.setDelegate(barcodeCountDeserializerDelegate)
     }
 
     private var context: DataCaptureContext?
@@ -238,4 +240,26 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
         barcodeCount?.remove(barcodeCountListener)
         barcodeCount = nil
     }
+}
+
+fileprivate class BarcodeCountDeserializerDelegateImpl: NSObject, BarcodeCountDeserializerDelegate {
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didStartDeserializingMode mode: BarcodeCount,
+                                  from JSONValue: JSONValue) {}
+
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didFinishDeserializingMode mode: BarcodeCount,
+                                  from JSONValue: JSONValue) {
+        if JSONValue.containsKey("enabled") {
+            mode.isEnabled = JSONValue.bool(forKey: "enabled")
+        }
+    }
+
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didStartDeserializingSettings settings: BarcodeCountSettings,
+                                  from JSONValue: JSONValue) {}
+
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didFinishDeserializingSettings settings: BarcodeCountSettings,
+                                  from JSONValue: JSONValue) {}
 }

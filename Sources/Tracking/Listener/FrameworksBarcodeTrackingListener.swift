@@ -7,12 +7,30 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListener {
-    private enum Constants {
-        static let sessionUpdated = "BarcodeTrackingListener.didUpdateSession"
-    }
+public enum FrameworksBarcodeTrackingEvent: String, CaseIterable {
+    case sessionUpdated = "BarcodeTrackingListener.didUpdateSession"
+    case brushForTrackedBarcode = "BarcodeTrackingBasicOverlayListener.brushForTrackedBarcode"
+    case didTapOnTrackedBarcode = "BarcodeTrackingBasicOverlayListener.didTapTrackedBarcode"
+    case offsetForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.offsetForTrackedBarcode"
+    case anchorForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.anchorForTrackedBarcode"
+    case widgetForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.viewForTrackedBarcode"
+    case didTapViewForTrackedBarcode = "BarcodeTrackingAdvancedOverlayListener.didTapViewForTrackedBarcode"
+}
 
-    private let emitter: Emitter
+internal extension Event {
+    init(_ event: FrameworksBarcodeTrackingEvent) {
+        self.init(name: event.rawValue)
+    }
+}
+
+internal extension Emitter {
+    func hasListener(for event: FrameworksBarcodeTrackingEvent) -> Bool {
+        hasListener(for: event.rawValue)
+    }
+}
+
+public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListener {
+    internal let emitter: Emitter
 
     public init(emitter: Emitter) {
         self.emitter = emitter
@@ -21,12 +39,12 @@ public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListene
     private var latestSession: BarcodeTrackingSession?
     private var isEnabled = AtomicBool()
 
-    private let sessionUpdatedEvent = EventWithResult<Bool>(event: Event(name: Constants.sessionUpdated))
+    private let sessionUpdatedEvent = EventWithResult<Bool>(event: Event(.sessionUpdated))
 
     public func barcodeTracking(_ barcodeTracking: BarcodeTracking,
                                 didUpdate session: BarcodeTrackingSession,
                                 frameData: FrameData) {
-        guard isEnabled.value, emitter.hasListener(for: Constants.sessionUpdated) else { return }
+        guard isEnabled.value, emitter.hasListener(for: .sessionUpdated) else { return }
         latestSession = session
 
         LastFrameData.shared.frameData = frameData

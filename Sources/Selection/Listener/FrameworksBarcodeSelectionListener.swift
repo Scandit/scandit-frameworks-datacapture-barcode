@@ -13,16 +13,28 @@ extension Barcode {
     }
 }
 
-public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListener {
-    private enum Constants {
-        static let didUpdateSelection = "BarcodeSelectionListener.didUpdateSelection"
-        static let didUpdateSession = "BarcodeSelectionListener.didUpdateSession"
-    }
+public enum FrameworksBarcodeSelectionEvent: String, CaseIterable {
+    case didUpdateSelection = "BarcodeSelectionListener.didUpdateSelection"
+    case didUpdateSession = "BarcodeSelectionListener.didUpdateSession"
+}
 
+fileprivate extension Event {
+    init(_ event: FrameworksBarcodeSelectionEvent) {
+        self.init(name: event.rawValue)
+    }
+}
+
+fileprivate extension Emitter {
+    func hasListener(for event: FrameworksBarcodeSelectionEvent) -> Bool {
+        hasListener(for: event.rawValue)
+    }
+}
+
+public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListener {
     private let emitter: Emitter
 
-    private let didUpdateSelectionEvent = EventWithResult<Bool>(event: Event(name: Constants.didUpdateSelection))
-    private let didUpdateSessionEvent = EventWithResult<Bool>(event: Event(name: Constants.didUpdateSession))
+    private let didUpdateSelectionEvent = EventWithResult<Bool>(event: Event(.didUpdateSelection))
+    private let didUpdateSessionEvent = EventWithResult<Bool>(event: Event(.didUpdateSession))
 
     private var isEnabled = AtomicBool()
 
@@ -52,8 +64,10 @@ public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListe
     }
 
     func getBarcodeCount(selectionIdentifier: String) -> Int {
-        guard let session = lastSession else { return 0 }
-        return session.selectedBarcodes.filter { $0.selectionIdentifier == selectionIdentifier }.count
+        let selector: (Barcode) -> Bool = { $0.selectionIdentifier == selectionIdentifier }
+        guard let session = lastSession,
+              let barcode = session.selectedBarcodes.first(where: selector) else { return 0 }
+        return session.count(for: barcode)
     }
 
     func resetSession(frameSequenceId: Int?) {
@@ -66,7 +80,7 @@ public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListe
     public func barcodeSelection(_ barcodeSelection: BarcodeSelection,
                                  didUpdateSelection session: BarcodeSelectionSession,
                                  frameData: FrameData?) {
-        guard isEnabled.value, emitter.hasListener(for: Constants.didUpdateSelection) else { return }
+        guard isEnabled.value, emitter.hasListener(for: .didUpdateSelection) else { return }
         lastSession = session
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
@@ -78,7 +92,7 @@ public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListe
     public func barcodeSelection(_ barcodeSelection: BarcodeSelection,
                                  didUpdate session: BarcodeSelectionSession,
                                  frameData: FrameData?) {
-        guard isEnabled.value, emitter.hasListener(for: Constants.didUpdateSession) else { return }
+        guard isEnabled.value, emitter.hasListener(for: .didUpdateSession) else { return }
         lastSession = session
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }

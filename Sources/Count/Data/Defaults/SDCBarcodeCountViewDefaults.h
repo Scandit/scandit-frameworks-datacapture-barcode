@@ -4,8 +4,7 @@
  * Copyright (C) 2023- Scandit AG. All rights reserved.
  */
 
-#import <ScanditCaptureCore/SDCBase.h>
-#import <ScanditBarcodeCapture/SDCBarcodeCountView.h>
+#import <ScanditBarcodeCapture/ScanditBarcodeCapture.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -7,18 +7,31 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
-    private enum Constants {
-        static let barcodeScanned = "BarcodeCaptureListener.didScan"
-        static let sessionUpdated = "BarcodeCaptureListener.didUpdateSession"
+public enum FrameworksBarcodeCaptureEvent: String, CaseIterable {
+    case barcodeScanned = "BarcodeCaptureListener.didScan"
+    case sessionUpdated = "BarcodeCaptureListener.didUpdateSession"
+}
+
+fileprivate extension Event {
+    init(_ event: FrameworksBarcodeCaptureEvent) {
+        self.init(name: event.rawValue)
     }
+}
+
+fileprivate extension Emitter {
+    func hasListener(for event: FrameworksBarcodeCaptureEvent) -> Bool {
+        hasListener(for: event.rawValue)
+    }
+}
+
+public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
 
     private let emitter: Emitter
 
     private var latestSession: BarcodeCaptureSession?
     private var isEnabled = AtomicBool()
-    private let barcodeScannedEvent = EventWithResult<Bool>(event: Event(name: Constants.barcodeScanned))
-    private let sessionUpdatedEvent = EventWithResult<Bool>(event: Event(name: Constants.sessionUpdated))
+    private let barcodeScannedEvent = EventWithResult<Bool>(event: Event(FrameworksBarcodeCaptureEvent.barcodeScanned))
+    private let sessionUpdatedEvent = EventWithResult<Bool>(event: Event(FrameworksBarcodeCaptureEvent.sessionUpdated))
 
     public init(emitter: Emitter) {
         self.emitter = emitter
@@ -27,7 +40,7 @@ public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener 
     public func barcodeCapture(_ barcodeCapture: BarcodeCapture,
                         didScanIn session: BarcodeCaptureSession,
                         frameData: FrameData) {
-        guard isEnabled.value, emitter.hasListener(for: Constants.barcodeScanned) else { return }
+        guard isEnabled.value, emitter.hasListener(for: .barcodeScanned) else { return }
         latestSession = session
 
         LastFrameData.shared.frameData = frameData
@@ -44,7 +57,7 @@ public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener 
     public func barcodeCapture(_ barcodeCapture: BarcodeCapture,
                         didUpdate session: BarcodeCaptureSession,
                         frameData: FrameData) {
-        guard isEnabled.value, emitter.hasListener(for: Constants.sessionUpdated) else { return }
+        guard isEnabled.value, emitter.hasListener(for: FrameworksBarcodeCaptureEvent.sessionUpdated) else { return }
         latestSession = session
 
         LastFrameData.shared.frameData = frameData

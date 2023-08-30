@@ -70,12 +70,10 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
 
     public func addBasicOverlayListener() {
         barcodeTrackingBasicOverlayListener.enable()
-        basicOverlay?.delegate = barcodeTrackingBasicOverlayListener
     }
 
     public func removeBasicOverlayListener() {
         barcodeTrackingBasicOverlayListener.disable()
-        basicOverlay?.delegate = nil
     }
 
     public func clearBasicOverlayTrackedBarcodeBrushes() {
@@ -94,8 +92,7 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
     public func addAdvancedOverlayListener() {
         dispatchMainSync {
             self.barcodeTrackingAdvancedOverlayListener.enable()
-            self.advancedOverlay?.delegate = self.barcodeTrackingAdvancedOverlayListener
-            self.advancedOverlayViewPool = AdvancedOverlayViewPool()
+            self.advancedOverlayViewPool = AdvancedOverlayViewPool(emitter: self.barcodeTrackingListener.emitter)
         }
     }
 
@@ -204,7 +201,9 @@ extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
                                             didFinishDeserializingBasicOverlay overlay: BarcodeTrackingBasicOverlay,
                                             from jsonValue: JSONValue) {
+        basicOverlay?.delegate = nil
         basicOverlay = overlay
+        basicOverlay?.delegate = barcodeTrackingBasicOverlayListener
     }
 
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
@@ -216,6 +215,8 @@ extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
                                             didFinishDeserializingAdvancedOverlay overlay: BarcodeTrackingAdvancedOverlay,
                                             from jsonValue: JSONValue) {
+        advancedOverlay?.delegate = nil
         advancedOverlay = overlay
+        advancedOverlay?.delegate = barcodeTrackingAdvancedOverlayListener
     }
 }

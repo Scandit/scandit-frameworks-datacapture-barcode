@@ -8,10 +8,14 @@ import ScanditBarcodeCapture
 import ScanditFrameworksCore
 import UIKit
 
-fileprivate class TapGestureRecognizerWithClosure: UITapGestureRecognizer {
+public protocol TappableView: UIView {
+    var didTap: (() -> Void)? { get set }
+}
+
+public class TapGestureRecognizerWithClosure: UITapGestureRecognizer {
     private let action: () -> Void
 
-    init(_ action: @escaping () -> Void) {
+    public init(_ action: @escaping () -> Void) {
         self.action = action
         super.init(target: nil, action: nil)
         addTarget(self, action: #selector(execute))
@@ -25,12 +29,12 @@ fileprivate class TapGestureRecognizerWithClosure: UITapGestureRecognizer {
 
 class AdvancedOverlayViewPool {
     private let emitter: Emitter
+    private let didTapViewForTrackedBarcodeEvent: Event
     private var views: [Int: UIImageView] = [:]
 
-    private let widgetForTrackedBarcodeEvent = Event(.didTapViewForTrackedBarcode)
-
-    init(emitter: Emitter) {
+    init(emitter: Emitter, didTapViewForTrackedBarcodeEvent: Event) {
         self.emitter = emitter
+        self.didTapViewForTrackedBarcodeEvent = didTapViewForTrackedBarcodeEvent
     }
 
     func getOrCreateView(barcode: TrackedBarcode, widgetData: Data) -> UIImageView? {
@@ -71,7 +75,7 @@ class AdvancedOverlayViewPool {
         
         let tapRecognizer = TapGestureRecognizerWithClosure { [weak self] in
             guard let self = self else { return }
-            self.widgetForTrackedBarcodeEvent.emit(on: self.emitter,
+            self.didTapViewForTrackedBarcodeEvent.emit(on: self.emitter,
                                                    payload: ["trackedBarcode": trackedBarcode.jsonString])
         }
         imageView.isUserInteractionEnabled = true

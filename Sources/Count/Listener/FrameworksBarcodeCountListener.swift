@@ -55,4 +55,15 @@ public class FrameworksBarcodeCountListener: NSObject, BarcodeCountListener {
             session.reset()
         }
     }
+    
+    func getSpatialMap() -> BarcodeSpatialGrid? {
+        guard let session = lastSession else { return nil }
+        return session.spatialMap()
+    }
+    
+    func getSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int) -> BarcodeSpatialGrid? {
+        guard let session = lastSession else { return nil }
+        return session.spatialMap(withExpectedNumberOfRows: expectedNumberOfRows, expectedNumberOfColumns: expectedNumberOfColumns)
+    }
+
 }

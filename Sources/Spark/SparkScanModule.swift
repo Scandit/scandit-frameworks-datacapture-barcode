@@ -65,7 +65,7 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func finishDidScan(enabled: Bool) {
-        sparkScanListener.finishDidUpdate(enabled: enabled)
+        sparkScanListener.finishDidScan(enabled: enabled)
     }
 
     public func resetSession() {

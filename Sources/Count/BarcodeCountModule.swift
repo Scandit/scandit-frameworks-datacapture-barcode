@@ -240,6 +240,14 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
         barcodeCount?.remove(barcodeCountListener)
         barcodeCount = nil
     }
+    
+    public func getSpatialMap() -> BarcodeSpatialGrid? {
+        return barcodeCountListener.getSpatialMap()
+    }
+    
+    public func getSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int) -> BarcodeSpatialGrid? {
+        return barcodeCountListener.getSpatialMap(expectedNumberOfRows: expectedNumberOfRows, expectedNumberOfColumns: expectedNumberOfColumns)
+    }
 }
 
 fileprivate class BarcodeCountDeserializerDelegateImpl: NSObject, BarcodeCountDeserializerDelegate {

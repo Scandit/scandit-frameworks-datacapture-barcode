@@ -12,15 +12,19 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
     private let barcodeTrackingBasicOverlayListener: FrameworksBarcodeTrackingBasicOverlayListener
     private let barcodeTrackingAdvancedOverlayListener: FrameworksBarcodeTrackingAdvancedOverlayListener
     private let barcodeTrackingDeserializer: BarcodeTrackingDeserializer
+    private let emitter: Emitter
+    private let didTapViewForTrackedBarcodeEvent = Event(.didTapViewForTrackedBarcode)
 
     public init(barcodeTrackingListener: FrameworksBarcodeTrackingListener,
                 barcodeTrackingBasicOverlayListener: FrameworksBarcodeTrackingBasicOverlayListener,
                 barcodeTrackingAdvancedOverlayListener: FrameworksBarcodeTrackingAdvancedOverlayListener,
+                emitter: Emitter,
                 barcodeTrackingDeserializer: BarcodeTrackingDeserializer = BarcodeTrackingDeserializer()) {
         self.barcodeTrackingListener = barcodeTrackingListener
         self.barcodeTrackingBasicOverlayListener = barcodeTrackingBasicOverlayListener
         self.barcodeTrackingAdvancedOverlayListener = barcodeTrackingAdvancedOverlayListener
         self.barcodeTrackingDeserializer = barcodeTrackingDeserializer
+        self.emitter = emitter
     }
 
     private var barcodeTracking: BarcodeTracking? {
@@ -92,7 +96,10 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
     public func addAdvancedOverlayListener() {
         dispatchMainSync {
             self.barcodeTrackingAdvancedOverlayListener.enable()
-            self.advancedOverlayViewPool = AdvancedOverlayViewPool(emitter: self.barcodeTrackingListener.emitter)
+            self.advancedOverlayViewPool = AdvancedOverlayViewPool(
+                emitter: self.barcodeTrackingListener.emitter,
+                didTapViewForTrackedBarcodeEvent: didTapViewForTrackedBarcodeEvent
+            )
         }
     }
 
@@ -127,10 +134,19 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
         }
     }
 
-    public func setViewForTrackedBarcode(view: UIView, trackedBarcodeId: Int, sessionFrameSequenceId: Int?) {
+    public func setViewForTrackedBarcode(view: TappableView?,
+                                         trackedBarcodeId: Int,
+                                         sessionFrameSequenceId: Int?) {
         guard let barcode = barcodeTrackingListener.getTrackedBarcodeFromLastSession(barcodeId: trackedBarcodeId,
                                                                                      sessionId: sessionFrameSequenceId) else {
             return
+        }
+        view?.didTap = { [weak self] in
+            guard let self = self else { return }
+            self.didTapViewForTrackedBarcodeEvent.emit(
+                on: self.emitter,
+                payload: ["trackedBarcode": barcode.jsonString]
+            )
         }
         dispatchMainSync {
             self.advancedOverlay?.setView(view, for: barcode)

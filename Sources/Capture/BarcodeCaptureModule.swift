@@ -60,6 +60,14 @@ public class BarcodeCaptureModule: NSObject, FrameworkModule {
     public func resetSession(frameSequenceId: Int?) {
         barcodeCaptureListener.resetSession(with: frameSequenceId)
     }
+    
+    public func setModeEnabled(enabled: Bool) {
+        barcodeCapture?.isEnabled = enabled
+    }
+    
+    public func isModeEnabled() -> Bool {
+        return barcodeCapture?.isEnabled == true
+    }
 }
 
 extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {

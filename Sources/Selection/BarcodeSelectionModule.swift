@@ -165,6 +165,14 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
         mode.setSelectBarcodeFromJsonString(barcodesJson, enabled: enabled)
         result.success(result: nil)
     }
+    
+    public func setModeEnabled(enabled: Bool) {
+        barcodeSelection?.isEnabled = enabled
+    }
+    
+    public func isModeEnabled() -> Bool {
+        return barcodeSelection?.isEnabled == true
+    }
 }
 
 extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {

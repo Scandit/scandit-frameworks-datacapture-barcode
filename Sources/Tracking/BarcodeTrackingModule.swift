@@ -178,6 +178,14 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
     public func trackedBarcode(by id: Int) -> TrackedBarcode? {
         barcodeTrackingListener.getTrackedBarcodeFromLastSession(barcodeId: id, sessionId: nil)
     }
+    
+    public func setModeEnabled(enabled: Bool) {
+        barcodeTracking?.isEnabled = enabled
+    }
+    
+    public func isModeEnabled() -> Bool {
+        return barcodeTracking?.isEnabled == true
+    }
 }
 
 extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {

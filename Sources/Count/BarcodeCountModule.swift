@@ -39,10 +39,10 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
 
     private var barcodeCount: BarcodeCount? {
         willSet {
-            barcodeCount?.removeListener(barcodeCountListener)
+            barcodeCount?.remove(barcodeCountListener)
         }
         didSet {
-            barcodeCount?.addListener(barcodeCountListener)
+            barcodeCount?.add(barcodeCountListener)
             if let captureList = barcodeCountCaptureList {
                 barcodeCount?.setCaptureList(captureList)
             }
@@ -237,7 +237,7 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
         barcodeCountView?.uiDelegate = nil
         barcodeCountView?.removeFromSuperview()
         barcodeCountView = nil
-        barcodeCount?.removeListener(barcodeCountListener)
+        barcodeCount?.remove(barcodeCountListener)
         barcodeCount = nil
     }
     
@@ -247,14 +247,6 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
     
     public func getSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int) -> BarcodeSpatialGrid? {
         return barcodeCountListener.getSpatialMap(expectedNumberOfRows: expectedNumberOfRows, expectedNumberOfColumns: expectedNumberOfColumns)
-    }
-    
-    public func setModeEnabled(enabled: Bool) {
-        barcodeCount?.isEnabled = enabled
-    }
-    
-    public func isModeEnabled() -> Bool {
-        return barcodeCount?.isEnabled == true
     }
 }
 

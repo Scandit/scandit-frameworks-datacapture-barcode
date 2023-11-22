@@ -34,6 +34,7 @@ class FrameworksBarcodePickAsyncMapperProductProviderCallback: NSObject, Barcode
 
     func finishMapIdentifiersForEvents(itemsJson: String) {
         let wrapper = BarcodePickProductProviderCallbackItemData(jsonString: itemsJson)
-        identifiersForItemsEvent.unlock(value: wrapper.items)
+        let items = wrapper.items
+        identifiersForItemsEvent.unlock(value: items)
     }
 }

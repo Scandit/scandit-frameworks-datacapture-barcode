@@ -7,4 +7,6 @@
 #import "SDCBarcodeCountDeserializerDelegate.h"
 #import "SDCBarcodeCountDeserializer+Private.h"
 #import "SDCBarcodeCountViewDefaults.h"
+#import "SDCBarcodePickSettingsDefaults.h"
+#import "SDCBarcodePickViewSettingsDefaults.h"
 #import "SDCSparkScanViewDefaults.h"

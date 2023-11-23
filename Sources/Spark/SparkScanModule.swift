@@ -271,6 +271,14 @@ public class SparkScanModule: NSObject, FrameworkModule {
             result.success(result: nil)
         }
     }
+    
+    public func setModeEnabled(enabled: Bool) {
+        sparkScan?.isEnabled = enabled
+    }
+    
+    public func isModeEnabled() -> Bool {
+        return sparkScan?.isEnabled == true
+    }
 }
 
 extension SparkScanModule: DeserializationLifeCycleObserver {

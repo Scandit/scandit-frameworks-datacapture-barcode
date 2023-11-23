@@ -7,7 +7,7 @@
 import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
-fileprivate extension JSONValue {
+extension JSONValue {
     func optionalString(forKey: String) -> String? {
         return containsKey(forKey) ? string(forKey: forKey) : nil
     }

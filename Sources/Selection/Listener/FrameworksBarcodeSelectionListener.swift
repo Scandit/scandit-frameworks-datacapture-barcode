@@ -16,6 +16,8 @@ extension Barcode {
 public enum FrameworksBarcodeSelectionEvent: String, CaseIterable {
     case didUpdateSelection = "BarcodeSelectionListener.didUpdateSelection"
     case didUpdateSession = "BarcodeSelectionListener.didUpdateSession"
+    case brushForAimedBarcode = "BarcodeSelectionAimedBrushProvider.brushForBarcode"
+    case brushForTrackedBarcode = "BarcodeSelectionTrackedBrushProvider.brushForBarcode"
 }
 
 fileprivate extension Event {

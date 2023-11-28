@@ -14,6 +14,8 @@ public enum BarcodeSelectionError: Error {
 
 public class BarcodeSelectionModule: NSObject, FrameworkModule {
     private let barcodeSelectionListener: FrameworksBarcodeSelectionListener
+    private var aimedBrushProviderFlag: Bool = false
+    private var trackedBrushProviderFlag: Bool = false
     private let aimedBrushProvider: FrameworksBarcodeSelectionAimedBrushProvider
     private let trackedBrushProvider: FrameworksBarcodeSelectionTrackedBrushProvider
     private let barcodeSelectionDeserializer: BarcodeSelectionDeserializer
@@ -100,15 +102,12 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
     }
 
     public func setAimedBrushProvider(result: FrameworksResult) {
-        guard let overlay = barcodeSelectionBasicOverlay else {
-            result.reject(error: BarcodeSelectionError.nilOverlay)
-            return
-        }
-        overlay.setAimedBarcodeBrushProvider(aimedBrushProvider)
+        aimedBrushProviderFlag = true
         result.success(result: nil)
     }
 
     public func removeAimedBarcodeBrushProvider() {
+        aimedBrushProviderFlag = false
         aimedBrushProvider.clearCache()
         barcodeSelectionBasicOverlay?.setAimedBarcodeBrushProvider(nil)
     }
@@ -131,15 +130,12 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
     }
     
     public func setTrackedBrushProvider(result: FrameworksResult) {
-        guard let overlay = barcodeSelectionBasicOverlay else {
-            result.reject(error: BarcodeSelectionError.nilOverlay)
-            return
-        }
-        overlay.setTrackedBarcodeBrushProvider(trackedBrushProvider)
+        trackedBrushProviderFlag = true
         result.success(result: nil)
     }
 
     public func removeTrackedBarcodeBrushProvider() {
+        trackedBrushProviderFlag = false
         trackedBrushProvider.clearCache()
         barcodeSelectionBasicOverlay?.setTrackedBarcodeBrushProvider(nil)
     }
@@ -164,14 +160,6 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
         }
         mode.setSelectBarcodeFromJsonString(barcodesJson, enabled: enabled)
         result.success(result: nil)
-    }
-    
-    public func setModeEnabled(enabled: Bool) {
-        barcodeSelection?.isEnabled = enabled
-    }
-    
-    public func isModeEnabled() -> Bool {
-        return barcodeSelection?.isEnabled == true
     }
 }
 
@@ -213,5 +201,14 @@ extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {
                                              didFinishDeserializingBasicOverlay overlay: BarcodeSelectionBasicOverlay,
                                              from jsonValue: JSONValue) {
         barcodeSelectionBasicOverlay = overlay
+        
+
+        if let barcodeSelectionBasicOverlay = barcodeSelectionBasicOverlay, trackedBrushProviderFlag {
+            barcodeSelectionBasicOverlay.setTrackedBarcodeBrushProvider(trackedBrushProvider)
+        }
+        
+        if let barcodeSelectionBasicOverlay = barcodeSelectionBasicOverlay, aimedBrushProviderFlag {
+            barcodeSelectionBasicOverlay.setAimedBarcodeBrushProvider(aimedBrushProvider)
+        }
     }
 }

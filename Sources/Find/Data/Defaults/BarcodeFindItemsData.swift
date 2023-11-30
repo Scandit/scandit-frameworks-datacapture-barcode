@@ -14,25 +14,34 @@ struct BarcodeFindItemsData {
     }
 
     var items: Set<BarcodeFindItem> {
-        let findItems = (0...backingJson.count() - 1).map {
+        let findItems = (0...backingJson.count() - 1).compactMap {
             barcodeFindItem(from: backingJson.atIndex($0))
         }
         return Set(findItems)
     }
 
-    private func barcodeFindItem(from json: JSONValue) -> BarcodeFindItem {
-        let barcodeData = json.string(forKey: "barcodeData")
-        let info = json.optionalString(forKey: "info")
-        let additionalInfo = json.optionalString(forKey: "additionalInfo")
-        let imageBase64Encoded = json.optionalString(forKey: "image")
-
-        var findItemContent: BarcodeFindItemContent? = nil
-        if (info != nil || additionalInfo != nil || imageBase64Encoded != nil) {
-            findItemContent = BarcodeFindItemContent(info: info,
-                                                     additionalInfo: additionalInfo,
-                                                     image: imageFromBase64(string: imageBase64Encoded)
-            )
+    private func barcodeFindItem(from json: JSONValue) -> BarcodeFindItem? {
+        guard let searchOptions = json.value(forKey: "searchOptions") as? JSONValue else {
+            return nil
         }
+        
+        let barcodeData = searchOptions.string(forKey: "barcodeData")
+        var findItemContent: BarcodeFindItemContent? = nil
+        
+        if let content = json.value(forKey: "content") as? JSONValue {
+            let info = content.optionalString(forKey: "info")
+            let additionalInfo = content.optionalString(forKey: "additionalInfo")
+            let imageBase64Encoded = content.optionalString(forKey: "image")
+
+            if info != nil || additionalInfo != nil || imageBase64Encoded != nil {
+                findItemContent = BarcodeFindItemContent(
+                    info: info,
+                    additionalInfo: additionalInfo,
+                    image: imageFromBase64(string: imageBase64Encoded)
+                )
+            }
+        }
+
         return BarcodeFindItem(
             searchOptions: BarcodeFindItemSearchOptions(barcodeData: barcodeData),
             content: findItemContent

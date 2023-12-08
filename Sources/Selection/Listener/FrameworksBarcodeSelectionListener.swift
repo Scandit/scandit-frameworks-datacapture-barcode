@@ -87,8 +87,8 @@ public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListe
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        barcodeSelection.isEnabled = didUpdateSelectionEvent.emit(on: emitter,
-                                                                  payload: ["session": session.jsonString]) ?? barcodeSelection.isEnabled
+        didUpdateSelectionEvent.emit(on: emitter,
+                                                                  payload: ["session": session.jsonString])
     }
 
     public func barcodeSelection(_ barcodeSelection: BarcodeSelection,
@@ -99,7 +99,7 @@ public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListe
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        barcodeSelection.isEnabled = didUpdateSessionEvent.emit(on: emitter,
-                                                                payload: ["session": session.jsonString]) ?? barcodeSelection.isEnabled
+        didUpdateSessionEvent.emit(on: emitter,
+                                                                payload: ["session": session.jsonString])
     }
 }

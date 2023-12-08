@@ -46,7 +46,7 @@ public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener 
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        barcodeCapture.isEnabled = barcodeScannedEvent.emit(on: emitter,
+        barcodeScannedEvent.emit(on: emitter,
                                                             payload: ["session": session.jsonString]) ?? barcodeCapture.isEnabled
     }
 
@@ -63,7 +63,7 @@ public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener 
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        barcodeCapture.isEnabled = sessionUpdatedEvent.emit(on: emitter,
+        sessionUpdatedEvent.emit(on: emitter,
                                                             payload: ["session": session.jsonString]) ?? barcodeCapture.isEnabled
     }
 

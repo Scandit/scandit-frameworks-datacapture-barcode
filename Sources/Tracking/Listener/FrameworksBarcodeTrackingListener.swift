@@ -50,8 +50,8 @@ public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListene
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        sessionUpdatedEvent.emit(on: emitter,
-                                                             payload: ["session": session.jsonString])
+        barcodeTracking.isEnabled = sessionUpdatedEvent.emit(on: emitter,
+                                                             payload: ["session": session.jsonString]) ?? barcodeTracking.isEnabled
     }
 
     public func finishDidUpdateSession(enabled: Bool) {

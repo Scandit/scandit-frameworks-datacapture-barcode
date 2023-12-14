@@ -10,7 +10,6 @@ import ScanditFrameworksCore
 public class BarcodeCaptureModule: NSObject, FrameworkModule {
     private let barcodeCaptureDeserializer: BarcodeCaptureDeserializer
     private let barcodeCaptureListener: FrameworksBarcodeCaptureListener
-    private var modeEnabled = true
 
     private var barcodeCapture: BarcodeCapture? {
         willSet {
@@ -61,15 +60,6 @@ public class BarcodeCaptureModule: NSObject, FrameworkModule {
     public func resetSession(frameSequenceId: Int?) {
         barcodeCaptureListener.resetSession(with: frameSequenceId)
     }
-    
-    public func setModeEnabled(enabled: Bool) {
-        modeEnabled = enabled
-        barcodeCapture?.isEnabled = enabled
-    }
-    
-    public func isModeEnabled() -> Bool {
-        return barcodeCapture?.isEnabled == true
-    }
 }
 
 extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {
@@ -82,7 +72,9 @@ extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {
         public func barcodeCaptureDeserializer(_ deserializer: BarcodeCaptureDeserializer,
                                         didFinishDeserializingMode mode: BarcodeCapture,
                                         from jsonValue: JSONValue) {
-            mode.isEnabled = modeEnabled
+            if jsonValue.containsKey("enabled") {
+                mode.isEnabled = jsonValue.bool(forKey: "enabled")
+            }
             barcodeCapture = mode
         }
 

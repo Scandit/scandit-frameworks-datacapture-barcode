@@ -31,8 +31,6 @@ public class SparkScanModule: NSObject, FrameworkModule {
     public var sparkScanView: SparkScanView?
 
     private var dataCaptureContext: DataCaptureContext?
-    
-    private var modeEnabled = true
 
     public init(sparkScanListener: FrameworksSparkScanListener,
                 sparkScanViewUIListener: FrameworksSparkScanViewUIListener,
@@ -107,7 +105,6 @@ public class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
-            mode.isEnabled = self.modeEnabled
             self.sparkScan = mode
 
             if !json.containsKey("SparkScanView") {
@@ -256,7 +253,7 @@ public class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
-            view.pauseScanning()
+            view.stopScanning()
             result.success(result: nil)
         }
     }
@@ -273,15 +270,6 @@ public class SparkScanModule: NSObject, FrameworkModule {
             view.showToast(text)
             result.success(result: nil)
         }
-    }
-    
-    public func setModeEnabled(enabled: Bool) {
-        modeEnabled = true
-        sparkScan?.isEnabled = enabled
-    }
-    
-    public func isModeEnabled() -> Bool {
-        return sparkScan?.isEnabled == true
     }
 }
 

@@ -19,8 +19,6 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
     private let aimedBrushProvider: FrameworksBarcodeSelectionAimedBrushProvider
     private let trackedBrushProvider: FrameworksBarcodeSelectionTrackedBrushProvider
     private let barcodeSelectionDeserializer: BarcodeSelectionDeserializer
-    
-    private var modeEnabled = true
 
     private var barcodeSelection: BarcodeSelection? {
         willSet {
@@ -163,15 +161,6 @@ public class BarcodeSelectionModule: NSObject, FrameworkModule {
         mode.setSelectBarcodeFromJsonString(barcodesJson, enabled: enabled)
         result.success(result: nil)
     }
-    
-    public func setModeEnabled(enabled: Bool) {
-        modeEnabled = enabled
-        barcodeSelection?.isEnabled = enabled
-    }
-    
-    public func isModeEnabled() -> Bool {
-        return barcodeSelection?.isEnabled == true
-    }
 }
 
 extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {
@@ -184,7 +173,9 @@ extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {
     public func barcodeSelectionDeserializer(_ deserializer: BarcodeSelectionDeserializer,
                                              didFinishDeserializingMode mode: BarcodeSelection,
                                              from jsonValue: JSONValue) {
-        mode.isEnabled = modeEnabled
+        if jsonValue.containsKey("enabled") {
+            mode.isEnabled = jsonValue.bool(forKey: "enabled")
+        }
         barcodeSelection = mode
     }
 

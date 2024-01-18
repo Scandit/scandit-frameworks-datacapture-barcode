@@ -46,7 +46,8 @@ public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener 
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        barcodeScannedEvent.emit(on: emitter, payload: ["session": session.jsonString])
+        barcodeCapture.isEnabled = barcodeScannedEvent.emit(on: emitter,
+                                                            payload: ["session": session.jsonString]) ?? barcodeCapture.isEnabled
     }
 
     public func finishDidScan(enabled: Bool) {
@@ -62,7 +63,8 @@ public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener 
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
 
-        sessionUpdatedEvent.emit(on: emitter, payload: ["session": session.jsonString])
+        barcodeCapture.isEnabled = sessionUpdatedEvent.emit(on: emitter,
+                                                            payload: ["session": session.jsonString]) ?? barcodeCapture.isEnabled
     }
 
     public func finishDidUpdateSession(enabled: Bool) {

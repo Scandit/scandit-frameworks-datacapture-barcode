@@ -14,6 +14,7 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
     private let viewUiListener: FrameworksBarcodeCountViewUIListener
     private let barcodeCountDeserializer: BarcodeCountDeserializer
     private let barcodeCountViewDeserializer: BarcodeCountViewDeserializer
+    private let barcodeCountDeserializerDelegate = BarcodeCountDeserializerDelegateImpl()
 
     public init(barcodeCountListener: FrameworksBarcodeCountListener,
                 captureListListener: FrameworksBarcodeCountCaptureListListener,
@@ -27,11 +28,10 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
         self.viewUiListener = viewUiListener
         self.barcodeCountDeserializer = barcodeCountDeserializer
         self.barcodeCountViewDeserializer = barcodeCountViewDeserializer
+        barcodeCountDeserializer.setDelegate(barcodeCountDeserializerDelegate)
     }
 
     private var context: DataCaptureContext?
-    
-    private var modeEnabled = true
 
     public var barcodeCountView: BarcodeCountView?
 
@@ -39,10 +39,10 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
 
     private var barcodeCount: BarcodeCount? {
         willSet {
-            barcodeCount?.removeListener(barcodeCountListener)
+            barcodeCount?.remove(barcodeCountListener)
         }
         didSet {
-            barcodeCount?.addListener(barcodeCountListener)
+            barcodeCount?.add(barcodeCountListener)
             if let captureList = barcodeCountCaptureList {
                 barcodeCount?.setCaptureList(captureList)
             }
@@ -86,7 +86,6 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
                 Log.error("Error during the barcode count view deserialization.\nError:", error: error)
                 return
             }
-            mode.isEnabled = self.modeEnabled
             self.barcodeCount = mode
 
             guard json.containsKey("View") else {
@@ -238,7 +237,7 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
         barcodeCountView?.uiDelegate = nil
         barcodeCountView?.removeFromSuperview()
         barcodeCountView = nil
-        barcodeCount?.removeListener(barcodeCountListener)
+        barcodeCount?.remove(barcodeCountListener)
         barcodeCount = nil
     }
     
@@ -249,13 +248,26 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
     public func getSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int) -> BarcodeSpatialGrid? {
         return barcodeCountListener.getSpatialMap(expectedNumberOfRows: expectedNumberOfRows, expectedNumberOfColumns: expectedNumberOfColumns)
     }
-    
-    public func setModeEnabled(enabled: Bool) {
-        modeEnabled = enabled
-        barcodeCount?.isEnabled = enabled
+}
+
+fileprivate class BarcodeCountDeserializerDelegateImpl: NSObject, BarcodeCountDeserializerDelegate {
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didStartDeserializingMode mode: BarcodeCount,
+                                  from JSONValue: JSONValue) {}
+
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didFinishDeserializingMode mode: BarcodeCount,
+                                  from JSONValue: JSONValue) {
+        if JSONValue.containsKey("enabled") {
+            mode.isEnabled = JSONValue.bool(forKey: "enabled")
+        }
     }
-    
-    public func isModeEnabled() -> Bool {
-        return barcodeCount?.isEnabled == true
-    }
+
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didStartDeserializingSettings settings: BarcodeCountSettings,
+                                  from JSONValue: JSONValue) {}
+
+    func barcodeCountDeserializer(_ deserializer: BarcodeCountDeserializer,
+                                  didFinishDeserializingSettings settings: BarcodeCountSettings,
+                                  from JSONValue: JSONValue) {}
 }

@@ -39,8 +39,6 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
     private var basicOverlay: BarcodeTrackingBasicOverlay?
     private var advancedOverlay: BarcodeTrackingAdvancedOverlay?
     private var advancedOverlayViewPool: AdvancedOverlayViewPool?
-    
-    private var modeEnabled = true
 
     // MARK: - FrameworkModule API
 
@@ -180,15 +178,6 @@ public class BarcodeTrackingModule: NSObject, FrameworkModule {
     public func trackedBarcode(by id: Int) -> TrackedBarcode? {
         barcodeTrackingListener.getTrackedBarcodeFromLastSession(barcodeId: id, sessionId: nil)
     }
-    
-    public func setModeEnabled(enabled: Bool) {
-        modeEnabled = enabled
-        barcodeTracking?.isEnabled = enabled
-    }
-    
-    public func isModeEnabled() -> Bool {
-        return barcodeTracking?.isEnabled == true
-    }
 }
 
 extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {
@@ -201,10 +190,9 @@ extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
                                             didFinishDeserializingMode mode: BarcodeTracking,
                                             from jsonValue: JSONValue) {
-        if (jsonValue.containsKey("enabled")) {
-            modeEnabled = jsonValue.bool(forKey: "enabled")
+        if jsonValue.containsKey("enabled") {
+            mode.isEnabled = jsonValue.bool(forKey: "enabled")
         }
-        mode.isEnabled = modeEnabled
         barcodeTracking = mode
     }
 

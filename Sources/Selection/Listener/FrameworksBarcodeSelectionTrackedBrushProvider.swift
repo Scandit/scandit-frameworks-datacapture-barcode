@@ -7,15 +7,15 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public class FrameworksBarcodeSelectionTrackedBrushProvider: NSObject, BarcodeSelectionBrushProvider {
-    private enum Constants {
-        static let brushForBarcode = "BarcodeSelectionTrackedBrushProvider.brushForBarcode"
-    }
+public enum FrameworksBarcodeSelectionTrackedBrushProviderEvent: String, CaseIterable {
+    case brushForBarcode = "BarcodeSelectionTrackedBrushProvider.brushForBarcode"
+}
 
+public class FrameworksBarcodeSelectionTrackedBrushProvider: NSObject, BarcodeSelectionBrushProvider {
     private let emitter: Emitter
     private let queue: DispatchQueue
 
-    private let brushForBarcodeEvent = Event(name: Constants.brushForBarcode)
+    private let brushForBarcodeEvent = Event(name: FrameworksBarcodeSelectionTrackedBrushProviderEvent.brushForBarcode.rawValue)
 
     private var cachedBrushes: [String: Brush] = [:]
 

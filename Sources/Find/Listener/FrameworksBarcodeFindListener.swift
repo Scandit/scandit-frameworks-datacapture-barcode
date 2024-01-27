@@ -7,7 +7,7 @@
 import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
-public enum BarcodeFindEvent: String, CaseIterable {
+public enum FrameworksBarcodeFindEvent: String, CaseIterable {
     case didStartSearch = "FrameworksBarcodeFindListener.onSearchStarted"
     case didPauseSearch = "FrameworksBarcodeFindListener.onSearchPaused"
     case didStopSearch = "FrameworksBarcodeFindListener.onSearchStopped"
@@ -15,13 +15,13 @@ public enum BarcodeFindEvent: String, CaseIterable {
 }
 
 extension Emitter {
-    func hasListener(for event: BarcodeFindEvent) -> Bool {
+    func hasListener(for event: FrameworksBarcodeFindEvent) -> Bool {
         hasListener(for: event.rawValue)
     }
 }
 
 extension Event {
-    init(_ event: BarcodeFindEvent) {
+    init(_ event: FrameworksBarcodeFindEvent) {
         self.init(name: event.rawValue)
     }
 }

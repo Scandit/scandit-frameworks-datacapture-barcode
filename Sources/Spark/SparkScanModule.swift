@@ -98,9 +98,9 @@ public class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
-            let sparkScanModeJson = json.object(forKey: "SparkScan").jsonString()
             var mode: SparkScan
             do {
+                let sparkScanModeJson = json.object(forKey: "SparkScan").jsonString()
                 mode = try self.sparkScanDeserializer.mode(fromJSONString: sparkScanModeJson)
             } catch {
                 Log.error(error)
@@ -116,8 +116,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
-            let sparkScanViewJson = json.object(forKey: "SparkScanView").jsonString()
             do {
+                let sparkScanViewJson = json.object(forKey: "SparkScanView").jsonString()
                 let sparkScanView = try self.sparkScanViewDeserializer.view(fromJSONString: sparkScanViewJson,
                                                                             with: context,
                                                                             mode: mode,
@@ -282,6 +282,12 @@ public class SparkScanModule: NSObject, FrameworkModule {
     
     public func isModeEnabled() -> Bool {
         return sparkScan?.isEnabled == true
+    }
+    
+    public func disposeView() {
+        sparkScanView?.removeFromSuperview()
+        sparkScanView?.uiDelegate = nil
+        sparkScanView = nil
     }
 }
 

@@ -29,7 +29,7 @@ struct BarcodePickDefaults: DefaultsEncodable {
             recommendedCameraSettings: CameraSettingsDefaults(
                 cameraSettings: BarcodePick.recommendedCameraSettings
             ),
-            settingsDefaults: FrameworksBarcodePickSettingsDefaults(),
+            settingsDefaults: FrameworksBarcodePickSettingsDefaults(barcodePickSettings: BarcodePickSettings()),
             viewSettingsDefaults: FrameworksBarcodePickViewDefaults(),
             barcodePickViewHighlightStyleDefaults: .shared,
             barcodePickSymbologySettingsDefaults: .shared

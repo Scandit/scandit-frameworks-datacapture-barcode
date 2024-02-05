@@ -76,12 +76,16 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                 result.reject(error: ScanditFrameworksCoreError.deserializationError(error: nil, json: jsonString))
                 return
             }
-            let barcodeFindModeJson = jsonValue.object(forKey: "BarcodeFind").jsonString()
+            let barcodeFindModeJson = jsonValue.object(forKey: "BarcodeFind")
             let viewJsonValue = jsonValue.object(forKey: "View")
             let viewJson = viewJsonValue.jsonString()
             do {
-                let mode = try self.modeDeserializer.mode(fromJSONString: barcodeFindModeJson)
+                let mode = try self.modeDeserializer.mode(fromJSONString: barcodeFindModeJson.jsonString())
                 mode.isEnabled = self.modeEnabled
+                if let itemsToFind = barcodeFindModeJson.optionalString(forKey: "itemsToFind"){
+                    let data = BarcodeFindItemsData(jsonString: itemsToFind)
+                    mode.setItemList(data.items)
+                }
                 self.barcodeFind = mode
 
                 let view = try self.viewDeserializer.view(fromJSONString: viewJson,

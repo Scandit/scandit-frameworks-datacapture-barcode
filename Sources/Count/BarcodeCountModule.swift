@@ -194,14 +194,16 @@ public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeC
     }
 
     public func setBarcodeCountCaptureList(barcodesJson: String) {
-        guard let mode = barcodeCount else {
-            return
-        }
         let jsonArray = JSONValue(string: barcodesJson).asArray()
         let targetBarcodes = Set((0...jsonArray.count() - 1).map { jsonArray.atIndex($0).asObject() }.map {
             TargetBarcode(data: $0.string(forKey: "data"), quantity: $0.integer(forKey: "quantity"))
         })
         barcodeCountCaptureList = BarcodeCountCaptureList(listener: captureListListener, targetBarcodes: targetBarcodes)
+        
+        guard let mode = barcodeCount else {
+            return
+        }
+        
         mode.setCaptureList(barcodeCountCaptureList)
     }
 

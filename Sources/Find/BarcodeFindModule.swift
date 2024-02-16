@@ -34,7 +34,7 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
     }
 
     private var context: DataCaptureContext?
-    
+
     private var modeEnabled = true
 
     public var barcodeFindView: BarcodeFindView? {
@@ -49,7 +49,7 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
     public func didStart() {
         DeserializationLifeCycleDispatcher.shared.attach(observer: self)
     }
-    
+
     public func didStop() {
         barcodeFindView?.stopSearching()
         barcodeFindView?.removeFromSuperview()
@@ -76,13 +76,23 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                 result.reject(error: ScanditFrameworksCoreError.deserializationError(error: nil, json: jsonString))
                 return
             }
-            let barcodeFindModeJson = jsonValue.object(forKey: "BarcodeFind")
+
+            let barcodeFindModeJsonValue = jsonValue.object(forKey: "BarcodeFind")
+            let barcodeFindModeJson = barcodeFindModeJsonValue.jsonString()
             let viewJsonValue = jsonValue.object(forKey: "View")
             let viewJson = viewJsonValue.jsonString()
             do {
-                let mode = try self.modeDeserializer.mode(fromJSONString: barcodeFindModeJson.jsonString())
+                print(barcodeFindModeJson)
+                let mode = try self.modeDeserializer.mode(fromJSONString: barcodeFindModeJson)
+
+                if barcodeFindModeJsonValue.containsKey("itemsToFind") {
+                    let itemsToFind = barcodeFindModeJsonValue.string(forKey: "itemsToFind")
+                    let data = BarcodeFindItemsData(jsonString: itemsToFind)
+                    mode.setItemList(data.items)
+                }
+
                 mode.isEnabled = self.modeEnabled
-                if let itemsToFind = barcodeFindModeJson.optionalString(forKey: "itemsToFind"){
+                if let itemsToFind = barcodeFindModeJsonValue.optionalString(forKey: "itemsToFind"){
                     let data = BarcodeFindItemsData(jsonString: itemsToFind)
                     mode.setItemList(data.items)
                 }
@@ -93,7 +103,7 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                                                           mode: mode,
                                                           parentView: container)
                 view.prepareSearching()
-                if viewJsonValue.containsKey("startSearching") && 
+                if viewJsonValue.containsKey("startSearching") &&
                     viewJsonValue.bool(forKey: "startSearching",
                                        default: false) {
                     view.startSearching()
@@ -205,12 +215,12 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
         barcodeFind?.pause()
         result.success(result: nil)
     }
-    
+
     public func setModeEnabled(enabled: Bool) {
         modeEnabled = enabled
         barcodeFind?.isEnabled = enabled
     }
-    
+
     public func isModeEnabled() -> Bool {
         return barcodeFind?.isEnabled == true
     }

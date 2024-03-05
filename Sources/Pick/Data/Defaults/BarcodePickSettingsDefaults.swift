@@ -8,12 +8,10 @@ import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
 struct FrameworksBarcodePickSettingsDefaults: DefaultsEncodable {
-    let barcodePickSettings: BarcodePickSettings
     func toEncodable() -> [String: Any?] {
         [
-            "hapticsEnabled": barcodePickSettings.isHapticsEnabled,
-            "soundEnabled": barcodePickSettings.isSoundEnabled,
-            "cachingEnabled": barcodePickSettings.isCachingEnabled
+            "hapticsEnabled": BarcodePickSettingsDefaults.hapticsEnabled,
+            "soundEnabled": BarcodePickSettingsDefaults.soundEnabled
         ]
     }
 }

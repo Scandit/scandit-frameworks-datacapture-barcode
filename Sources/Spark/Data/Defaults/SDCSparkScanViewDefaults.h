@@ -13,6 +13,7 @@ NS_SWIFT_NAME(SparkScanViewDefaults)
 SDC_EXPORTED_SYMBOL
 @interface SDCSparkScanViewDefaults : NSObject
 
+@property (class, nonatomic, readonly) BOOL defaultShouldShowTargetModeHint;
 @property (class, nonatomic, readonly) BOOL defaultBarcodeCountButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultFastFindButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultTargetModeButtonVisibility;
@@ -33,16 +34,22 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) NSString *defaultStartCapturingByHoldingText;
 @property (class, nonatomic, readonly) NSString *defaultResumeCapturingText;
 @property (class, nonatomic, readonly) NSString *defaultScanningCapturingText;
-@property (class, nonatomic, readonly) BOOL defaultPreviewSizeControlVisibility;
+@property (class, nonatomic, readonly) NSString *defaultScanningCapturingTextAccurateSingular;
+@property (class, nonatomic, readonly) NSString *defaultTargetModeHintText;
+@property (class, nonatomic, readonly) NSString *defaultTargetModeHintTextAccurateSingular;
 
 // Toast
 @property (class, nonatomic, assign, readonly) BOOL defaultToastEnabled;
 @property (class, nonatomic, readonly) UIColor *defaultToastBackgroundColor;
 @property (class, nonatomic, readonly) UIColor *defaultToastTextColor;
 @property (class, nonatomic, readonly) NSString *defaultTargetModeEnabledMessage;
+@property (class, nonatomic, readonly) NSString *defaultTargetModeEnabledMessageAccurate;
 @property (class, nonatomic, readonly) NSString *defaultTargetModeDisabledMessage;
+@property (class, nonatomic, readonly) NSString *defaultTargetModeDisabledMessageAccurate;
 @property (class, nonatomic, readonly) NSString *defaultContinuousModeEnabledMessage;
 @property (class, nonatomic, readonly) NSString *defaultContinuousModeDisabledMessage;
+@property (class, nonatomic, readonly) NSString *defaultCameraTimeoutMessage;
+@property (class, nonatomic, readonly) NSString *defaultCameraTimeoutMessageAccurate;
 
 @end
 

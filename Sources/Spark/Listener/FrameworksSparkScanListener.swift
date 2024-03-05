@@ -7,23 +7,16 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public enum FrameworksSparkScanEvent: String, CaseIterable {
-    case didScan = "SparkScanListener.didScan"
-    case didUpdate = "SparkScanListener.didUpdateSession"
-}
-
-fileprivate extension Event {
-    init(_ event: FrameworksSparkScanEvent) {
-        self.init(name: event.rawValue)
-    }
-}
-
 public class FrameworksSparkScanListener: NSObject, SparkScanListener {
+    private enum Constants {
+        static let didScan = "SparkScanListener.didScan"
+        static let didUpdate = "SparkScanListener.didUpdateSession"
+    }
 
     private let emitter: Emitter
 
-    private let didScanEvent = EventWithResult<Bool>(event: Event(.didScan))
-    private let didUpdateEvent = EventWithResult<Bool>(event: Event(.didUpdate))
+    private let didScanEvent = EventWithResult<Bool>(event: Event(name: Constants.didScan))
+    private let didUpdateEvent = EventWithResult<Bool>(event: Event(name: Constants.didUpdate))
 
     private var isEnabled = AtomicBool()
 
@@ -47,7 +40,7 @@ public class FrameworksSparkScanListener: NSObject, SparkScanListener {
     public func sparkScan(_ sparkScan: SparkScan,
                           didScanIn session: SparkScanSession,
                           frameData: FrameData?) {
-        guard isEnabled.value, emitter.hasListener(for: FrameworksSparkScanEvent.didScan.rawValue) else { return }
+        guard isEnabled.value, emitter.hasListener(for: Constants.didScan) else { return }
         lastSession = session
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }
@@ -62,7 +55,7 @@ public class FrameworksSparkScanListener: NSObject, SparkScanListener {
     public func sparkScan(_ sparkScan: SparkScan,
                           didUpdate session: SparkScanSession,
                           frameData: FrameData?) {
-        guard isEnabled.value, emitter.hasListener(for: FrameworksSparkScanEvent.didUpdate.rawValue) else { return }
+        guard isEnabled.value, emitter.hasListener(for: Constants.didUpdate) else { return }
         lastSession = session
         LastFrameData.shared.frameData = frameData
         defer { LastFrameData.shared.frameData = nil }

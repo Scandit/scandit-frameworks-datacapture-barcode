@@ -21,14 +21,14 @@ struct BarcodeFindItemsData {
     }
 
     private func barcodeFindItem(from json: JSONValue) -> BarcodeFindItem? {
-        guard json.containsObject(withKey: "searchOptions") else { return nil }
-        let searchOptions = json.object(forKey: "searchOptions")
+        guard let searchOptions = json.value(forKey: "searchOptions") as? JSONValue else {
+            return nil
+        }
         
         let barcodeData = searchOptions.string(forKey: "barcodeData")
         var findItemContent: BarcodeFindItemContent? = nil
         
-        if json.containsKey("content") {
-            let content = json.object(forKey: "content")
+        if let content = json.value(forKey: "content") as? JSONValue {
             let info = content.optionalString(forKey: "info")
             let additionalInfo = content.optionalString(forKey: "additionalInfo")
             let imageBase64Encoded = content.optionalString(forKey: "image")

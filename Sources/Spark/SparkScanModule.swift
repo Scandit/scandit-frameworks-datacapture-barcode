@@ -16,7 +16,6 @@ public enum SparkScanError: Error {
 public class SparkScanModule: NSObject, FrameworkModule {
     private let sparkScanListener: FrameworksSparkScanListener
     private let sparkScanViewUIListener: FrameworksSparkScanViewUIListener
-    private let feedbackDelegate: FrameworksSparkScanFeedbackDelegate
     private let sparkScanDeserializer: SparkScanDeserializer
     private let sparkScanViewDeserializer: SparkScanViewDeserializer
 
@@ -37,12 +36,10 @@ public class SparkScanModule: NSObject, FrameworkModule {
 
     public init(sparkScanListener: FrameworksSparkScanListener,
                 sparkScanViewUIListener: FrameworksSparkScanViewUIListener,
-                feedbackDelegate: FrameworksSparkScanFeedbackDelegate,
                 sparkScanDeserializer: SparkScanDeserializer = SparkScanDeserializer(),
                 sparkScanViewDeserializer: SparkScanViewDeserializer = SparkScanViewDeserializer()) {
         self.sparkScanListener = sparkScanListener
         self.sparkScanViewUIListener = sparkScanViewUIListener
-        self.feedbackDelegate = feedbackDelegate
         self.sparkScanDeserializer = sparkScanDeserializer
         self.sparkScanViewDeserializer = sparkScanViewDeserializer
     }
@@ -101,9 +98,9 @@ public class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
+            let sparkScanModeJson = json.object(forKey: "SparkScan").jsonString()
             var mode: SparkScan
             do {
-                let sparkScanModeJson = json.object(forKey: "SparkScan").jsonString()
                 mode = try self.sparkScanDeserializer.mode(fromJSONString: sparkScanModeJson)
             } catch {
                 Log.error(error)
@@ -119,16 +116,13 @@ public class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
+            let sparkScanViewJson = json.object(forKey: "SparkScanView").jsonString()
             do {
-                let sparkScanViewJson = json.object(forKey: "SparkScanView")
-                let sparkScanView = try self.sparkScanViewDeserializer.view(fromJSONString: sparkScanViewJson.jsonString(),
+                let sparkScanView = try self.sparkScanViewDeserializer.view(fromJSONString: sparkScanViewJson,
                                                                             with: context,
                                                                             mode: mode,
                                                                             parentView: container)
                 sparkScanView.viewWillAppear()
-                if sparkScanViewJson.containsKey("hasFeedbackDelegate") {
-                    sparkScanView.feedbackDelegate = self.feedbackDelegate
-                }
                 self.sparkScanView = sparkScanView
                 self.sparkScanView?.uiDelegate = self.sparkScanViewUIListener
             } catch {
@@ -183,8 +177,39 @@ public class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func emitFeedback(feedbackJson: String, result: FrameworksResult) {
-        // Noop operation on the native sdk so we avoid calling anything here
-        result.success()
+        let block = { [weak self] in
+            guard let self = self else { return }
+            guard let view = self.sparkScanView else {
+                let error = SparkScanError.nilView
+                Log.error(error)
+                result.reject(error: error)
+                return
+            }
+            let jsonValue = JSONValue(string: feedbackJson)
+            var feedback: SparkScanViewFeedback
+            let type = jsonValue.string(forKey: "type")
+
+            var visualFeedbackColor: UIColor?
+            if jsonValue.containsKey("visualFeedbackColor") {
+                visualFeedbackColor = UIColor(sdcHexString: jsonValue.string(forKey: "visualFeedbackColor" ))
+            }
+            if type == "success" {
+                feedback = visualFeedbackColor != nil ? SparkScanViewSuccessFeedback(visualFeedbackColor: visualFeedbackColor!) : SparkScanViewSuccessFeedback()
+            } else {
+                let timeinterval = jsonValue.timeinterval(forKey: "resumeCapturingDelay")
+                if visualFeedbackColor != nil {
+                    feedback = SparkScanViewErrorFeedback(message: jsonValue.string(forKey: "message"),
+                                                          resumeCapturingDelay: timeinterval / 1000,
+                                                          visualFeedbackColor: visualFeedbackColor!)
+                } else {
+                    feedback = SparkScanViewErrorFeedback(message: jsonValue.string(forKey: "message"),
+                                                          resumeCapturingDelay: timeinterval / 1000)
+                }
+            }
+            view.emitFeedback(feedback)
+            result.success(result: nil)
+        }
+        dispatchMain(block)
     }
 
     public func pauseScanning() {
@@ -257,27 +282,6 @@ public class SparkScanModule: NSObject, FrameworkModule {
     
     public func isModeEnabled() -> Bool {
         return sparkScan?.isEnabled == true
-    }
-    
-    public func addFeedbackDelegate(result: FrameworksResult) {
-        self.sparkScanView?.feedbackDelegate = self.feedbackDelegate
-        result.success()
-    }
-    
-    public func removeFeedbackDelegate(result: FrameworksResult) {
-        self.sparkScanView?.feedbackDelegate = nil
-        result.success()
-    }
-    
-    public func submitFeedbackForBarcode(feedbackJson: String?, result: FrameworksResult) {
-        self.feedbackDelegate.submitFeedback(feedbackJson: feedbackJson)
-        result.success()
-    }
-    
-    public func disposeView() {
-        sparkScanView?.removeFromSuperview()
-        sparkScanView?.uiDelegate = nil
-        sparkScanView = nil
     }
 }
 

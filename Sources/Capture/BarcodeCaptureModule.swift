@@ -11,9 +11,6 @@ public class BarcodeCaptureModule: NSObject, FrameworkModule {
     private let barcodeCaptureDeserializer: BarcodeCaptureDeserializer
     private let barcodeCaptureListener: FrameworksBarcodeCaptureListener
     private var modeEnabled = true
-    private var context: DataCaptureContext?
-    private var dataCaptureView: DataCaptureView?
-    private var barcodeCaptureOverlay: BarcodeCaptureOverlay?
 
     private var barcodeCapture: BarcodeCapture? {
         willSet {
@@ -31,14 +28,12 @@ public class BarcodeCaptureModule: NSObject, FrameworkModule {
     }
 
     public func didStart() {
+        barcodeCaptureDeserializer.delegate = self
         Deserializers.Factory.add(barcodeCaptureDeserializer)
-        self.barcodeCaptureDeserializer.delegate = self
-        DeserializationLifeCycleDispatcher.shared.attach(observer: self)
     }
 
     public func didStop() {
-        self.barcodeCaptureDeserializer.delegate = nil
-        DeserializationLifeCycleDispatcher.shared.detach(observer: self)
+        barcodeCaptureDeserializer.delegate = nil
         Deserializers.Factory.remove(barcodeCaptureDeserializer)
         barcodeCaptureListener.clearCache()
         barcodeCaptureListener.disable()
@@ -75,47 +70,6 @@ public class BarcodeCaptureModule: NSObject, FrameworkModule {
     public func isModeEnabled() -> Bool {
         return barcodeCapture?.isEnabled == true
     }
-    
-    public func updateModeFromJson(modeJson: String, result: FrameworksResult) {
-        guard let mode = barcodeCapture else {
-            result.success(result: nil)
-            return
-        }
-        do {
-            try barcodeCaptureDeserializer.updateMode(mode, fromJSONString: modeJson)
-            result.success(result: nil)
-        } catch {
-            result.reject(error: error)
-        }
-    }
-
-    public func applyModeSettings(modeSettingsJson: String, result: FrameworksResult) {
-        guard let mode = barcodeCapture else {
-            result.success(result: nil)
-            return
-        }
-        do {
-            let settings = try barcodeCaptureDeserializer.settings(fromJSONString: modeSettingsJson)
-            mode.apply(settings)
-            result.success(result: nil)
-        } catch {
-            result.reject(error: error)
-        }
-    }
-    
-    public func updateOverlay(overlayJson: String, result: FrameworksResult) {
-        guard let overlay = self.barcodeCaptureOverlay else {
-            result.success(result: nil)
-            return
-        }
-                
-        do {
-            try barcodeCaptureDeserializer.update(overlay, fromJSONString: overlayJson)
-            result.success(result: nil)
-        } catch {
-            result.reject(error: error)
-        }
-    }
 }
 
 extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {
@@ -128,6 +82,9 @@ extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {
         public func barcodeCaptureDeserializer(_ deserializer: BarcodeCaptureDeserializer,
                                         didFinishDeserializingMode mode: BarcodeCapture,
                                         from jsonValue: JSONValue) {
+            if (jsonValue.containsKey("enabled")) {
+                modeEnabled = jsonValue.bool(forKey: "enabled")
+            }
             mode.isEnabled = modeEnabled
             barcodeCapture = mode
         }
@@ -153,98 +110,6 @@ extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {
         public func barcodeCaptureDeserializer(_ deserializer: BarcodeCaptureDeserializer,
                                         didFinishDeserializingOverlay overlay: BarcodeCaptureOverlay,
                                         from jsonValue: JSONValue) {
-            self.barcodeCaptureOverlay = overlay
+            // not used in frameworks
         }
-}
-
-extension BarcodeCaptureModule: DeserializationLifeCycleObserver {
-    public func dataCaptureContext(deserialized context: DataCaptureContext?) {
-        self.context = context
-    }
-    
-    public func dataCaptureView(deserialized view: DataCaptureView?) {
-        self.dataCaptureView = view
-        
-        guard let overlay = barcodeCaptureOverlay, let dcView = view else {
-            return
-        }
-        
-        dcView.addOverlay(overlay)
-    }
-    
-    public func dataCaptureContext(addMode modeJson: String) throws {
-        if JSONValue(string: modeJson).string(forKey: "type") != "barcodeCapture" {
-            return
-        }
-
-        guard let dcContext = self.context else {
-            return
-        }
-
-        let mode = try barcodeCaptureDeserializer.mode(fromJSONString: modeJson, with: dcContext)
-        dcContext.addMode(mode)
-    }
-    
-    public func dataCaptureContext(removeMode modeJson: String) {
-        if JSONValue(string: modeJson).string(forKey: "type") != "barcodeCapture" {
-            return
-        }
-
-        guard let dcContext = self.context else {
-            return
-        }
-        
-        guard let mode = self.barcodeCapture else {
-            return
-        }
-        dcContext.removeMode(mode)
-        self.barcodeCapture = nil
-    }
-    
-    public func dataCaptureContextAllModeRemoved() {
-        self.barcodeCapture = nil
-    }
-    
-    public func didDisposeDataCaptureContext() {
-        self.context = nil
-        self.barcodeCapture = nil
-    }
-    
-    public func dataCaptureView(addOverlay overlayJson: String) throws {
-        if JSONValue(string: overlayJson).string(forKey: "type") != "barcodeCapture" {
-            return
-        }
-        
-        guard let mode = self.barcodeCapture else {
-            return
-        }
-        
-        try dispatchMainSync {
-            let overlay = try barcodeCaptureDeserializer.overlay(fromJSONString: overlayJson, withMode: mode)
-            dataCaptureView?.addOverlay(overlay)
-        }
-    }
-    
-    public func dataCaptureView(removeOverlay overlayJson: String) {
-        if JSONValue(string: overlayJson).string(forKey: "type") != "barcodeCapture" {
-            return
-        }
-
-        removeCurrentOverlay()
-    }
-    
-    public func dataCaptureViewRemoveAllOverlays() {
-        removeCurrentOverlay()
-    }
-    
-    private func removeCurrentOverlay() {
-        guard let overlay = self.barcodeCaptureOverlay else {
-            return
-        }
-        
-        dispatchMainSync {
-            self.dataCaptureView?.removeOverlay(overlay)
-        }
-        self.barcodeCaptureOverlay = nil
-    }
 }

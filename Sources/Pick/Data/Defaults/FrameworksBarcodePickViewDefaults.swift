@@ -20,10 +20,7 @@ struct FrameworksBarcodePickViewDefaults: DefaultsEncodable {
             "onFirstItemUnpickCompletedHintText": BarcodePickViewSettingsDefaults.onFirstItemUnpickCompletedHintText,
             "onFirstUnmarkedItemPickCompletedHintText": BarcodePickViewSettingsDefaults.onFirstUnmarkedItemPickCompletedHintText,
             "showGuidelines": BarcodePickViewSettingsDefaults.showGuidelines,
-            "showHints": BarcodePickViewSettingsDefaults.showHints,
-            "showFinishButton": BarcodePickViewSettingsDefaults.showFinishButton,
-            "showPauseButton": BarcodePickViewSettingsDefaults.showPauseButton,
-            "showZoomButton": BarcodePickViewSettingsDefaults.showZoomButton
+            "showHints": BarcodePickViewSettingsDefaults.showHints
         ]
     }
 }

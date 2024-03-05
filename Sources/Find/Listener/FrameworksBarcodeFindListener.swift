@@ -7,22 +7,21 @@
 import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
-public enum FrameworksBarcodeFindEvent: String, CaseIterable {
+public enum BarcodeFindEvent: String, CaseIterable {
     case didStartSearch = "FrameworksBarcodeFindListener.onSearchStarted"
     case didPauseSearch = "FrameworksBarcodeFindListener.onSearchPaused"
     case didStopSearch = "FrameworksBarcodeFindListener.onSearchStopped"
     case finishButtonTapped = "FrameworksBarcodeFindViewUiListener.onFinishButtonTapped"
-    case transformBarcodeData = "BarcodeFindTransformer.transformBarcodeData"
 }
 
 extension Emitter {
-    func hasListener(for event: FrameworksBarcodeFindEvent) -> Bool {
+    func hasListener(for event: BarcodeFindEvent) -> Bool {
         hasListener(for: event.rawValue)
     }
 }
 
 extension Event {
-    init(_ event: FrameworksBarcodeFindEvent) {
+    init(_ event: BarcodeFindEvent) {
         self.init(name: event.rawValue)
     }
 }
@@ -51,27 +50,18 @@ public class FrameworksBarcodeFindListener: NSObject, BarcodeFindListener {
 
     public func barcodeFindDidStartSearch(_ barcodeFind: BarcodeFind) {
         guard isEnabled.value, emitter.hasListener(for: .didStartSearch) else { return }
-        dispatchMain { [weak self] in
-            guard let self else { return }
-            self.didStartSearchEvent.emit(on: self.emitter, payload: [:])
-        }
+        didStartSearchEvent.emit(on: emitter, payload: [:])
     }
 
     public func barcodeFind(_ barcodeFind: BarcodeFind, didPauseSearch foundItems: Set<BarcodeFindItem>) {
         guard isEnabled.value, emitter.hasListener(for: .didPauseSearch) else { return }
         let foundItemsBarcodeData = foundItems.map { $0.searchOptions.barcodeData }
-        dispatchMain { [weak self] in
-            guard let self else { return }
-            self.didPauseSearchEvent.emit(on: self.emitter, payload: ["foundItems": foundItemsBarcodeData])
-        }
+        didPauseSearchEvent.emit(on: emitter, payload: ["foundItems": foundItemsBarcodeData])
     }
 
     public func barcodeFind(_ barcodeFind: BarcodeFind, didStopSearch foundItems: Set<BarcodeFindItem>) {
         guard isEnabled.value, emitter.hasListener(for: .didStopSearch) else { return }
         let foundItemsBarcodeData = foundItems.map { $0.searchOptions.barcodeData }
-        dispatchMain { [weak self] in
-            guard let self else { return }
-            self.didStopSearchEvent.emit(on: self.emitter, payload: ["foundItems": foundItemsBarcodeData])
-        }
+        didStopSearchEvent.emit(on: emitter, payload: ["foundItems": foundItemsBarcodeData])
     }
 }

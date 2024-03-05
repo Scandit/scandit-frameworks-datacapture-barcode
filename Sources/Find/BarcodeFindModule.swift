@@ -10,18 +10,15 @@ import ScanditBarcodeCapture
 public class BarcodeFindModule: NSObject, FrameworkModule {
     private let listener: FrameworksBarcodeFindListener
     private let viewListener: FrameworksBarcodeFindViewUIListener
-    private let barcodeTransformer: FrameworksBarcodeFindTransformer
     private let modeDeserializer: BarcodeFindDeserializer
     private let viewDeserializer: BarcodeFindViewDeserializer
 
     public init(listener: FrameworksBarcodeFindListener,
                 viewListener: FrameworksBarcodeFindViewUIListener,
-                barcodeTransformer: FrameworksBarcodeFindTransformer,
                 modeDeserializer: BarcodeFindDeserializer = BarcodeFindDeserializer(),
                 viewDeserializer: BarcodeFindViewDeserializer = BarcodeFindViewDeserializer()) {
         self.listener = listener
         self.viewListener = viewListener
-        self.barcodeTransformer = barcodeTransformer
         self.modeDeserializer = modeDeserializer
         self.viewDeserializer = viewDeserializer
         super.init()
@@ -37,7 +34,7 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
     }
 
     private var context: DataCaptureContext?
-
+    
     private var modeEnabled = true
 
     public var barcodeFindView: BarcodeFindView? {
@@ -52,7 +49,7 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
     public func didStart() {
         DeserializationLifeCycleDispatcher.shared.attach(observer: self)
     }
-
+    
     public func didStop() {
         barcodeFindView?.stopSearching()
         barcodeFindView?.removeFromSuperview()
@@ -79,20 +76,12 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                 result.reject(error: ScanditFrameworksCoreError.deserializationError(error: nil, json: jsonString))
                 return
             }
-
-            let barcodeFindModeJsonValue = jsonValue.object(forKey: "BarcodeFind")
-            let barcodeFindModeJson = barcodeFindModeJsonValue.jsonString()
+            let barcodeFindModeJson = jsonValue.object(forKey: "BarcodeFind").jsonString()
             let viewJsonValue = jsonValue.object(forKey: "View")
             let viewJson = viewJsonValue.jsonString()
             do {
                 let mode = try self.modeDeserializer.mode(fromJSONString: barcodeFindModeJson)
-
-                if barcodeFindModeJsonValue.containsKey("itemsToFind") {
-                    let itemsToFind = barcodeFindModeJsonValue.string(forKey: "itemsToFind")
-                    let data = BarcodeFindItemsData(jsonString: itemsToFind)
-                    mode.setItemList(data.items)
-                }
-
+                mode.isEnabled = self.modeEnabled
                 self.barcodeFind = mode
 
                 let view = try self.viewDeserializer.view(fromJSONString: viewJson,
@@ -100,16 +89,12 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                                                           mode: mode,
                                                           parentView: container)
                 view.prepareSearching()
-                if viewJsonValue.containsKey("startSearching") &&
+                if viewJsonValue.containsKey("startSearching") && 
                     viewJsonValue.bool(forKey: "startSearching",
                                        default: false) {
                     view.startSearching()
                 }
                 self.barcodeFindView = view
-
-                if barcodeFindModeJsonValue.bool(forKey: "hasBarcodeTransformer", default: false) {
-                    self.barcodeFind?.setBarcodeTransformer(self.barcodeTransformer)
-                }
             } catch {
                 result.reject(error: error)
                 return
@@ -216,24 +201,14 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
         barcodeFind?.pause()
         result.success(result: nil)
     }
-
+    
     public func setModeEnabled(enabled: Bool) {
         modeEnabled = enabled
         barcodeFind?.isEnabled = enabled
     }
-
+    
     public func isModeEnabled() -> Bool {
         return barcodeFind?.isEnabled == true
-    }
-
-    public func setBarcodeFindTransformer(result: FrameworksResult) {
-        barcodeFind?.setBarcodeTransformer(self.barcodeTransformer)
-        result.success(result: nil)
-    }
-
-    public func submitBarcodeFindTransformerResult(transformedData: String?, result: FrameworksResult) {
-        self.barcodeTransformer.submitResult(result: transformedData)
-        result.success(result: nil)
     }
 }
 

@@ -13,11 +13,7 @@ struct SparkScanDefaults: DefaultsEncodable {
     let settingsDefaults: SparkScanSettingsDefaults
 
     public static let shared = {
-        SparkScanDefaults(feedbackDefaults: SparkScanFeedbackDefaults(
-                                                successFeedback: SparkScanBarcodeSuccessFeedback(),
-                                                // the default values passed here will be ignored on the common layer
-                                                errorFeedback: SparkScanBarcodeErrorFeedback(message: "ignore", resumeCapturingDelay: TimeInterval(1.0))
-                                            ),
+        SparkScanDefaults(feedbackDefaults: SparkScanFeedbackDefaults(feedback: .default),
                           viewDefaults: DefaultsSparkScanView(viewSettings: SparkScanViewSettings()),
                           settingsDefaults: SparkScanSettingsDefaults(sparkScanSettings: SparkScanSettings()))
     }()

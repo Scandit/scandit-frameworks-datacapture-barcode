@@ -196,7 +196,7 @@ public class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCy
     }
 
     public func viewStart() {
-        barcodePickView?.start()
+        dispatchMain { [weak self] in self?.barcodePickView?.start() }
     }
 
     public func viewPause() {

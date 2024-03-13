@@ -29,6 +29,10 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, strong, readonly) NSString *onFirstUnmarkedItemPickCompletedHintText;
 @property (class, nonatomic, strong, readonly) NSString *onFirstItemUnpickCompletedHintText;
 
+@property (class, nonatomic, assign, readonly) BOOL showFinishButton;
+@property (class, nonatomic, assign, readonly) BOOL showPauseButton;
+@property (class, nonatomic, assign, readonly) BOOL showZoomButton;
+
 @end
 
 NS_ASSUME_NONNULL_END

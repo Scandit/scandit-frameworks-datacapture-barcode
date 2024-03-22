@@ -11,6 +11,7 @@ public enum SparkScanError: Error {
     case nilContext
     case json(String, String)
     case nilView
+    case nilParent
 }
 
 public class SparkScanModule: NSObject, FrameworkModule {
@@ -19,6 +20,8 @@ public class SparkScanModule: NSObject, FrameworkModule {
     private let feedbackDelegate: FrameworksSparkScanFeedbackDelegate
     private let sparkScanDeserializer: SparkScanDeserializer
     private let sparkScanViewDeserializer: SparkScanViewDeserializer
+
+    public var shouldBringSparkScanViewToFront = true
 
     private var sparkScan: SparkScan? {
         willSet {
@@ -32,7 +35,7 @@ public class SparkScanModule: NSObject, FrameworkModule {
     public var sparkScanView: SparkScanView?
 
     private var dataCaptureContext: DataCaptureContext?
-    
+
     private var modeEnabled = true
 
     public init(sparkScanListener: FrameworksSparkScanListener,
@@ -121,6 +124,11 @@ public class SparkScanModule: NSObject, FrameworkModule {
             }
             do {
                 let sparkScanViewJson = json.object(forKey: "SparkScanView")
+                let viewSettingsJson = sparkScanViewJson.object(forKey: "viewSettings")
+                if viewSettingsJson.containsKey("shouldShowOnTopAlways") {
+                    self.shouldBringSparkScanViewToFront = viewSettingsJson.bool(forKey: "shouldShowOnTopAlways")
+                }
+                viewSettingsJson.removeKeys(["shouldShowOnTopAlways"])
                 let sparkScanView = try self.sparkScanViewDeserializer.view(fromJSONString: sparkScanViewJson.jsonString(),
                                                                             with: context,
                                                                             mode: mode,
@@ -151,6 +159,11 @@ public class SparkScanModule: NSObject, FrameworkModule {
                     result.reject(error: error)
                     return
                 }
+                let viewSettingsJson = JSONValue(string: viewJson)
+                if viewSettingsJson.containsKey("shouldShowOnTopAlways") {
+                    self.shouldBringSparkScanViewToFront = viewSettingsJson.bool(forKey: "shouldShowOnTopAlways")
+                }
+                viewSettingsJson.removeKeys(["shouldShowOnTopAlways"])
                 try self.sparkScanViewDeserializer.update(view, fromJSONString: viewJson)
             } catch {
                 Log.error(error)
@@ -249,31 +262,31 @@ public class SparkScanModule: NSObject, FrameworkModule {
             result.success(result: nil)
         }
     }
-    
+
     public func setModeEnabled(enabled: Bool) {
         modeEnabled = true
         sparkScan?.isEnabled = enabled
     }
-    
+
     public func isModeEnabled() -> Bool {
         return sparkScan?.isEnabled == true
     }
-    
+
     public func addFeedbackDelegate(result: FrameworksResult) {
         self.sparkScanView?.feedbackDelegate = self.feedbackDelegate
         result.success()
     }
-    
+
     public func removeFeedbackDelegate(result: FrameworksResult) {
         self.sparkScanView?.feedbackDelegate = nil
         result.success()
     }
-    
+
     public func submitFeedbackForBarcode(feedbackJson: String?, result: FrameworksResult) {
         self.feedbackDelegate.submitFeedback(feedbackJson: feedbackJson)
         result.success()
     }
-    
+
     public func disposeView() {
         sparkScanView?.removeFromSuperview()
         sparkScanView?.uiDelegate = nil

@@ -29,7 +29,7 @@ internal extension Emitter {
     }
 }
 
-public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListener {
+open class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListener {
     internal let emitter: Emitter
 
     public init(emitter: Emitter) {
@@ -75,7 +75,7 @@ public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListene
         sessionUpdatedEvent.reset()
     }
 
-    func getTrackedBarcodeFromLastSession(barcodeId: Int, sessionId: Int?) -> TrackedBarcode? {
+    public func getTrackedBarcodeFromLastSession(barcodeId: Int, sessionId: Int?) -> TrackedBarcode? {
         guard let session = latestSession, sessionId == nil || session.frameSequenceId == sessionId else {
             return nil
         }

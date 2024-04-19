@@ -22,25 +22,25 @@ fileprivate extension Emitter {
     }
 }
 
-class FrameworksBarcodePickViewUiListener : NSObject, BarcodePickViewUIDelegate {
+open class FrameworksBarcodePickViewUiListener : NSObject, BarcodePickViewUIDelegate {
     private let emitter: Emitter
     private var isEnabled = AtomicBool()
 
-    init(emitter: Emitter) {
+    public init(emitter: Emitter) {
         self.emitter = emitter
     }
 
-    func enable() {
+    public func enable() {
         if isEnabled.value { return }
         isEnabled.value = true
     }
 
-    func disable() {
+    public func disable() {
         guard isEnabled.value else { return }
         isEnabled.value = false
     }
     
-    func barcodePickViewDidTapFinishButton(_ view: BarcodePickView) {
+    public func barcodePickViewDidTapFinishButton(_ view: BarcodePickView) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickViewUiListenerEvents.didTapFinishButton) else { return }
         emitter.emit(.didTapFinishButton, payload: [:])

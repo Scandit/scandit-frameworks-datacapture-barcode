@@ -34,6 +34,7 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) NSString *defaultResumeCapturingText;
 @property (class, nonatomic, readonly) NSString *defaultScanningCapturingText;
 @property (class, nonatomic, readonly) BOOL defaultPreviewSizeControlVisibility;
+@property (class, nonatomic, readonly) BOOL defaultCameraSwitchButtonVisibility;
 
 // Toast
 @property (class, nonatomic, assign, readonly) BOOL defaultToastEnabled;

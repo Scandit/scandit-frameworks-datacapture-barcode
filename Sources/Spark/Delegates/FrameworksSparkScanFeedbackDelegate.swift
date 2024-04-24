@@ -24,7 +24,7 @@ fileprivate extension Emitter {
 }
 
 
-open class FrameworksSparkScanFeedbackDelegate : NSObject, SparkScanFeedbackDelegate {
+public class FrameworksSparkScanFeedbackDelegate : NSObject, SparkScanFeedbackDelegate {
     private let emitter: Emitter
     
     private let feedbackForBarcodeEvent = EventWithResult<String?>(event: Event(.feedbackForBarcode))

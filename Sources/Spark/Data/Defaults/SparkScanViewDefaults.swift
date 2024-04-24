@@ -45,8 +45,7 @@ struct DefaultsSparkScanView: DefaultsEncodable {
             "targetModeDisabledMessage": ViewDefaults.defaultTargetModeDisabledMessage,
             "continuousModeEnabledMessage": ViewDefaults.defaultContinuousModeEnabledMessage,
             "continuousModeDisabledMessage": ViewDefaults.defaultContinuousModeDisabledMessage,
-            "previewSizeControlVisible": ViewDefaults.defaultPreviewSizeControlVisibility,
-            "cameraSwitchButtonVisible": ViewDefaults.defaultCameraSwitchButtonVisibility,
+            "previewSizeControlVisible": ViewDefaults.defaultPreviewSizeControlVisibility
         ]
     }
 }

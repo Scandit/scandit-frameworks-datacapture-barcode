@@ -18,7 +18,7 @@ fileprivate extension Event {
     }
 }
 
-open class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate {
+public class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate {
 
     private let emitter: Emitter
 
@@ -31,11 +31,11 @@ open class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate 
 
     private var isEnabled = AtomicBool()
 
-    public func enable() {
+    func enable() {
         isEnabled.value = true
     }
 
-    public func disable() {
+    func disable() {
         isEnabled.value = false
     }
 

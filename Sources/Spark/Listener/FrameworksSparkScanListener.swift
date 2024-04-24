@@ -18,7 +18,7 @@ fileprivate extension Event {
     }
 }
 
-open class FrameworksSparkScanListener: NSObject, SparkScanListener {
+public class FrameworksSparkScanListener: NSObject, SparkScanListener {
 
     private let emitter: Emitter
 
@@ -55,7 +55,7 @@ open class FrameworksSparkScanListener: NSObject, SparkScanListener {
         didScanEvent.emit(on: emitter, payload: ["session": session.jsonString])
     }
 
-    public func finishDidScan(enabled: Bool) {
+    func finishDidScan(enabled: Bool) {
         didScanEvent.unlock(value: enabled)
     }
 
@@ -70,11 +70,11 @@ open class FrameworksSparkScanListener: NSObject, SparkScanListener {
         didUpdateEvent.emit(on: emitter, payload: ["session": session.jsonString])
     }
 
-    public func finishDidUpdate(enabled: Bool) {
+    func finishDidUpdate(enabled: Bool) {
         didUpdateEvent.unlock(value: enabled)
     }
 
-    public func resetLastSession() {
+    func resetLastSession() {
         lastSession?.reset()
     }
 }

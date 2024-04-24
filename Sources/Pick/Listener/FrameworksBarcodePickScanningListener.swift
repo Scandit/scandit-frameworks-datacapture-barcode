@@ -23,32 +23,32 @@ fileprivate extension Emitter {
     }
 }
 
-open class FrameworksBarcodePickScanningListener : NSObject, BarcodePickScanningListener {
+class FrameworksBarcodePickScanningListener : NSObject, BarcodePickScanningListener {
     private var isEnabled = AtomicBool()
     private let emitter: Emitter
 
-    public init(emitter: Emitter) {
+    init(emitter: Emitter) {
         self.emitter = emitter
     }
 
-    public func enable() {
+    func enable() {
         if isEnabled.value { return }
         isEnabled.value = true
     }
 
-    public func disable() {
+    func disable() {
         guard isEnabled.value else { return }
         isEnabled.value = false
     }
     
-    public func barcodePick(_ barcodePick: BarcodePick, didComplete scanningSession: BarcodePickScanningSession) {
+    func barcodePick(_ barcodePick: BarcodePick, didComplete scanningSession: BarcodePickScanningSession) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickScanningEvent.didCompleteScanningSession) else { return }
        
         emitter.emit(.didCompleteScanningSession, payload: ["session": scanningSession.jsonString])
     }
     
-    public func barcodePick(_ barcodePick: BarcodePick, didUpdate scanningSession: BarcodePickScanningSession) {
+    func barcodePick(_ barcodePick: BarcodePick, didUpdate scanningSession: BarcodePickScanningSession) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickScanningEvent.didUpdateScanningSession) else { return }
        

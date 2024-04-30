@@ -11,10 +11,6 @@ extension JSONValue {
     func optionalString(forKey: String) -> String? {
         return containsKey(forKey) ? string(forKey: forKey) : nil
     }
-    
-    func optionalInt(forKey: String) -> Int? {
-        return containsKey(forKey) ? integer(forKey: forKey) : nil
-    }
 }
 
 struct BarcodePickProductProviderCallbackItemData {

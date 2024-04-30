@@ -8,13 +8,12 @@ import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
 struct SparkScanFeedbackDefaults: DefaultsEncodable {
-    let successFeedback: SparkScanBarcodeSuccessFeedback
-    let errorFeedback: SparkScanBarcodeErrorFeedback
+    let feedback: SparkScanFeedback
 
     func toEncodable() -> [String: Any?] {
         [
-            "success": successFeedback.jsonString,
-            "error": errorFeedback.jsonString
+            "success": feedback.success.jsonString,
+            "error": feedback.error.jsonString
         ]
     }
 }

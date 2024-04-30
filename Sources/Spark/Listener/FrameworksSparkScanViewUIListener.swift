@@ -7,18 +7,11 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public enum FrameworksSparkScanViewUIEvent: String, CaseIterable  {
-    case fastFindButtonTapped = "SparkScanViewUiListener.fastFindButtonTapped"
-    case barcodeCountButtonTapped = "SparkScanViewUiListener.barcodeCountButtonTapped"
-}
-
-fileprivate extension Event {
-    init(_ event: FrameworksSparkScanViewUIEvent) {
-        self.init(name: event.rawValue)
+public class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate {
+    private enum Constants {
+        static let fastFindButtonTapped = "SparkScanViewUiListener.fastFindButtonTapped"
+        static let barcodeCountButtonTapped = "SparkScanViewUiListener.barcodeCountButtonTapped"
     }
-}
-
-open class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate {
 
     private let emitter: Emitter
 
@@ -26,16 +19,16 @@ open class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate 
         self.emitter = emitter
     }
 
-    private let fastFindButtonTappedEvent = Event(.fastFindButtonTapped)
-    private let barcodeCountButtonTappedEvent = Event(.barcodeCountButtonTapped)
+    private let fastFindButtonTappedEvent = Event(name: Constants.fastFindButtonTapped)
+    private let barcodeCountButtonTappedEvent = Event(name: Constants.barcodeCountButtonTapped)
 
     private var isEnabled = AtomicBool()
 
-    public func enable() {
+    func enable() {
         isEnabled.value = true
     }
 
-    public func disable() {
+    func disable() {
         isEnabled.value = false
     }
 

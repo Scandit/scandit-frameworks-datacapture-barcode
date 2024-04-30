@@ -13,17 +13,17 @@ fileprivate extension Event {
     }
 }
 
-open class FrameworksBarcodePickAsyncMapperProductProviderCallback: NSObject, BarcodePickAsyncMapperProductProviderDelegate {
+class FrameworksBarcodePickAsyncMapperProductProviderCallback: NSObject, BarcodePickAsyncMapperProductProviderDelegate {
     private let emitter: Emitter
 
-    public init(emitter: Emitter) {
+    init(emitter: Emitter) {
         self.emitter = emitter
         identifiersForItemsEvent = EventWithResult(event: Event(.onProductIdentifierForItems))
     }
 
     let identifiersForItemsEvent: EventWithResult<[BarcodePickProductProviderCallbackItem]>
 
-    public func mapItems(_ items: [String],
+    func mapItems(_ items: [String],
                   completionHandler: @escaping ([BarcodePickProductProviderCallbackItem]) -> Void) {
         let result = identifiersForItemsEvent.emit(on: emitter,
                                                    payload: ["itemsData": items])
@@ -32,7 +32,7 @@ open class FrameworksBarcodePickAsyncMapperProductProviderCallback: NSObject, Ba
         }
     }
 
-    public func finishMapIdentifiersForEvents(itemsJson: String) {
+    func finishMapIdentifiersForEvents(itemsJson: String) {
         let wrapper = BarcodePickProductProviderCallbackItemData(jsonString: itemsJson)
         identifiersForItemsEvent.unlock(value: wrapper.items)
     }

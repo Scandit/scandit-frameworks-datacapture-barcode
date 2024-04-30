@@ -32,7 +32,7 @@ fileprivate extension Emitter {
     }
 }
 
-public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListener {
+open class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListener {
     private let emitter: Emitter
 
     private let didUpdateSelectionEvent = EventWithResult<Bool>(event: Event(.didUpdateSelection))
@@ -46,33 +46,33 @@ public class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListe
         self.emitter = emitter
     }
 
-    func enable() {
+    public func enable() {
         isEnabled.value = true
     }
 
-    func disable() {
+    public func disable() {
         isEnabled.value = false
         lastSession = nil
         didUpdateSessionEvent.reset()
         didUpdateSelectionEvent.reset()
     }
 
-    func finishDidSelect(enabled: Bool) {
+    public func finishDidSelect(enabled: Bool) {
         didUpdateSelectionEvent.unlock(value: enabled)
     }
 
-    func finishDidUpdate(enabled: Bool) {
+    public func finishDidUpdate(enabled: Bool) {
         didUpdateSessionEvent.unlock(value: enabled)
     }
 
-    func getBarcodeCount(selectionIdentifier: String) -> Int {
+    public func getBarcodeCount(selectionIdentifier: String) -> Int {
         let selector: (Barcode) -> Bool = { $0.selectionIdentifier == selectionIdentifier }
         guard let session = lastSession,
               let barcode = session.selectedBarcodes.first(where: selector) else { return 0 }
         return session.count(for: barcode)
     }
 
-    func resetSession(frameSequenceId: Int?) {
+    public func resetSession(frameSequenceId: Int?) {
         guard let session = lastSession,
               let frameSequenceId = frameSequenceId,
               session.frameSequenceId == frameSequenceId else { return }

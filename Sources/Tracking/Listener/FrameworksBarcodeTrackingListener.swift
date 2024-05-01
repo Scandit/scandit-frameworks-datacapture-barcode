@@ -79,6 +79,6 @@ public class FrameworksBarcodeTrackingListener: NSObject, BarcodeTrackingListene
         guard let session = latestSession, sessionId == nil || session.frameSequenceId == sessionId else {
             return nil
         }
-        return session.trackedBarcodes[NSNumber(value: barcodeId)]
+        return session.trackedBarcodes[barcodeId]
     }
 }

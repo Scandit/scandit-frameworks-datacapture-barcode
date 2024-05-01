@@ -12,6 +12,7 @@ public enum FrameworksBarcodeFindEvent: String, CaseIterable {
     case didPauseSearch = "FrameworksBarcodeFindListener.onSearchPaused"
     case didStopSearch = "FrameworksBarcodeFindListener.onSearchStopped"
     case finishButtonTapped = "FrameworksBarcodeFindViewUiListener.onFinishButtonTapped"
+    case transformBarcodeData = "BarcodeFindTransformer.transformBarcodeData"
 }
 
 extension Emitter {

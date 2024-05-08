@@ -7,9 +7,9 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public class FrameworksBarcodeCountListener: NSObject, BarcodeCountListener {
-    private enum Constants {
-        static let barcodeScanned = "BarcodeCountListener.onScan"
+open class FrameworksBarcodeCountListener: NSObject, BarcodeCountListener {
+    public enum Constants {
+        public static let barcodeScanned = "BarcodeCountListener.onScan"
     }
 
     private let emitter: Emitter
@@ -55,12 +55,12 @@ public class FrameworksBarcodeCountListener: NSObject, BarcodeCountListener {
             session.reset()
         }
     }
-    
+
     func getSpatialMap() -> BarcodeSpatialGrid? {
         guard let session = lastSession else { return nil }
         return session.spatialMap()
     }
-    
+
     func getSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int) -> BarcodeSpatialGrid? {
         guard let session = lastSession else { return nil }
         return session.spatialMap(withExpectedNumberOfRows: expectedNumberOfRows, expectedNumberOfColumns: expectedNumberOfColumns)

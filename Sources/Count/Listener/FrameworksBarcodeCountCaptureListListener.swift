@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class FrameworksBarcodeCountCaptureListListener: NSObject, BarcodeCountCaptureListListener {
+public class FrameworksBarcodeCountCaptureListListener: NSObject, BarcodeCountCaptureListListener {
     private enum Constants {
         static let sessionUpdated = "BarcodeCountCaptureListListener.didUpdateSession"
     }

@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class BarcodeCaptureModule: NSObject, FrameworkModule {
+public class BarcodeCaptureModule: NSObject, FrameworkModule {
     private let barcodeCaptureDeserializer: BarcodeCaptureDeserializer
     private let barcodeCaptureListener: FrameworksBarcodeCaptureListener
     private var modeEnabled = true

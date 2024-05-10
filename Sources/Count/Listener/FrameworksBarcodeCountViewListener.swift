@@ -25,7 +25,7 @@ fileprivate extension Emitter {
     }
 }
 
-public enum BarcodeCountViewListenerEvent: String {
+enum BarcodeCountViewListenerEvent: String {
     case brushForRecognizedBarcode = "BarcodeCountViewListener.brushForRecognizedBarcode"
     case brushForRecognizedBarcodeNotInList = "BarcodeCountViewListener.brushForRecognizedBarcodeNotInList"
     case brushForUnrecognizedBarcode = "BarcodeCountViewListener.brushForUnrecognizedBarcode"
@@ -36,7 +36,7 @@ public enum BarcodeCountViewListenerEvent: String {
     case didTapRecognizedBarcodeNotInList = "BarcodeCountViewListener.didTapRecognizedBarcodeNotInList"
 }
 
-open class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegate {
+public class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegate {
     private let emitter: Emitter
 
     private let brushForRecognizedBarcodeEvent = Event(.brushForRecognizedBarcode)

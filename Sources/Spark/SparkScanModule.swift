@@ -14,7 +14,7 @@ public enum SparkScanError: Error {
     case nilParent
 }
 
-open class SparkScanModule: NSObject, FrameworkModule {
+public class SparkScanModule: NSObject, FrameworkModule {
     private let sparkScanListener: FrameworksSparkScanListener
     private let sparkScanViewUIListener: FrameworksSparkScanViewUIListener
     private let feedbackDelegate: FrameworksSparkScanFeedbackDelegate

@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class FrameworksBarcodeTrackingBasicOverlayListener: NSObject, BarcodeTrackingBasicOverlayDelegate {
+public class FrameworksBarcodeTrackingBasicOverlayListener: NSObject, BarcodeTrackingBasicOverlayDelegate {
     private let emitter: Emitter
 
     public init(emitter: Emitter) {

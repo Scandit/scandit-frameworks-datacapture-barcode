@@ -7,7 +7,7 @@
 import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
-public class FrameworksBarcodeFindTransformer: NSObject, BarcodeFindTransformer {
+open class FrameworksBarcodeFindTransformer: NSObject, BarcodeFindTransformer {
    
     private let emitter: Emitter
     

@@ -42,7 +42,7 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) NSString *defaultClearHighlightsButtonAccessibilityLabel;
 @property (class, nonatomic, readonly) NSString *defaultSingleScanButtonAccessibilityHint;
 @property (class, nonatomic, readonly) NSString *defaultSingleScanButtonAccessibilityLabel;
-
+@property (class, nonatomic, readonly) BOOL defaultShouldShowListProgressBar;
 @end
 
 NS_ASSUME_NONNULL_END

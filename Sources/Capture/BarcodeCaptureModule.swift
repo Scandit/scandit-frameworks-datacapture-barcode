@@ -116,6 +116,15 @@ open class BarcodeCaptureModule: NSObject, FrameworkModule {
             result.reject(error: error)
         }
     }
+    
+    public func updateFeedback(feedbackJson: String, result: FrameworksResult) {
+        do {
+            barcodeCapture?.feedback = try BarcodeCaptureFeedback(fromJSONString: feedbackJson)
+            result.success(result: nil)
+        } catch {
+            result.reject(error: error)
+        }
+    }
 }
 
 extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {

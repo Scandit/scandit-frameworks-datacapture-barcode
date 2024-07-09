@@ -12,7 +12,6 @@ public enum FrameworksBarcodeFindEvent: String, CaseIterable {
     case didPauseSearch = "FrameworksBarcodeFindListener.onSearchPaused"
     case didStopSearch = "FrameworksBarcodeFindListener.onSearchStopped"
     case finishButtonTapped = "FrameworksBarcodeFindViewUiListener.onFinishButtonTapped"
-    case transformBarcodeData = "BarcodeFindTransformer.transformBarcodeData"
 }
 
 extension Emitter {
@@ -27,7 +26,7 @@ extension Event {
     }
 }
 
-open class FrameworksBarcodeFindListener: NSObject, BarcodeFindListener {
+public class FrameworksBarcodeFindListener: NSObject, BarcodeFindListener {
     private let emitter: Emitter
     private var isEnabled = AtomicBool()
     private let didStartSearchEvent = Event(.didStartSearch)

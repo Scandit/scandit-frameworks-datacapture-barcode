@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class BarcodeCaptureModule: NSObject, FrameworkModule {
+public class BarcodeCaptureModule: NSObject, FrameworkModule {
     private let barcodeCaptureDeserializer: BarcodeCaptureDeserializer
     private let barcodeCaptureListener: FrameworksBarcodeCaptureListener
     private var modeEnabled = true
@@ -111,15 +111,6 @@ open class BarcodeCaptureModule: NSObject, FrameworkModule {
                 
         do {
             try barcodeCaptureDeserializer.update(overlay, fromJSONString: overlayJson)
-            result.success(result: nil)
-        } catch {
-            result.reject(error: error)
-        }
-    }
-    
-    public func updateFeedback(feedbackJson: String, result: FrameworksResult) {
-        do {
-            barcodeCapture?.feedback = try BarcodeCaptureFeedback(fromJSONString: feedbackJson)
             result.success(result: nil)
         } catch {
             result.reject(error: error)

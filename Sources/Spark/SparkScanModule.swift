@@ -11,17 +11,13 @@ public enum SparkScanError: Error {
     case nilContext
     case json(String, String)
     case nilView
-    case nilParent
 }
 
-open class SparkScanModule: NSObject, FrameworkModule {
+public class SparkScanModule: NSObject, FrameworkModule {
     private let sparkScanListener: FrameworksSparkScanListener
     private let sparkScanViewUIListener: FrameworksSparkScanViewUIListener
-    private let feedbackDelegate: FrameworksSparkScanFeedbackDelegate
     private let sparkScanDeserializer: SparkScanDeserializer
     private let sparkScanViewDeserializer: SparkScanViewDeserializer
-
-    public var shouldBringSparkScanViewToFront = true
 
     private var sparkScan: SparkScan? {
         willSet {
@@ -35,17 +31,15 @@ open class SparkScanModule: NSObject, FrameworkModule {
     public var sparkScanView: SparkScanView?
 
     private var dataCaptureContext: DataCaptureContext?
-
+    
     private var modeEnabled = true
 
     public init(sparkScanListener: FrameworksSparkScanListener,
                 sparkScanViewUIListener: FrameworksSparkScanViewUIListener,
-                feedbackDelegate: FrameworksSparkScanFeedbackDelegate,
                 sparkScanDeserializer: SparkScanDeserializer = SparkScanDeserializer(),
                 sparkScanViewDeserializer: SparkScanViewDeserializer = SparkScanViewDeserializer()) {
         self.sparkScanListener = sparkScanListener
         self.sparkScanViewUIListener = sparkScanViewUIListener
-        self.feedbackDelegate = feedbackDelegate
         self.sparkScanDeserializer = sparkScanDeserializer
         self.sparkScanViewDeserializer = sparkScanViewDeserializer
     }
@@ -123,20 +117,12 @@ open class SparkScanModule: NSObject, FrameworkModule {
                 return
             }
             do {
-                let sparkScanViewJson = json.object(forKey: "SparkScanView")
-                let viewSettingsJson = sparkScanViewJson.object(forKey: "viewSettings")
-                if viewSettingsJson.containsKey("shouldShowOnTopAlways") {
-                    self.shouldBringSparkScanViewToFront = viewSettingsJson.bool(forKey: "shouldShowOnTopAlways")
-                }
-                viewSettingsJson.removeKeys(["shouldShowOnTopAlways"])
-                let sparkScanView = try self.sparkScanViewDeserializer.view(fromJSONString: sparkScanViewJson.jsonString(),
+                let sparkScanViewJson = json.object(forKey: "SparkScanView").jsonString()
+                let sparkScanView = try self.sparkScanViewDeserializer.view(fromJSONString: sparkScanViewJson,
                                                                             with: context,
                                                                             mode: mode,
                                                                             parentView: container)
                 sparkScanView.viewWillAppear()
-                if sparkScanViewJson.containsKey("hasFeedbackDelegate") {
-                    sparkScanView.feedbackDelegate = self.feedbackDelegate
-                }
                 self.sparkScanView = sparkScanView
                 self.sparkScanView?.uiDelegate = self.sparkScanViewUIListener
             } catch {
@@ -159,11 +145,6 @@ open class SparkScanModule: NSObject, FrameworkModule {
                     result.reject(error: error)
                     return
                 }
-                let viewSettingsJson = JSONValue(string: viewJson)
-                if viewSettingsJson.containsKey("shouldShowOnTopAlways") {
-                    self.shouldBringSparkScanViewToFront = viewSettingsJson.bool(forKey: "shouldShowOnTopAlways")
-                }
-                viewSettingsJson.removeKeys(["shouldShowOnTopAlways"])
                 try self.sparkScanViewDeserializer.update(view, fromJSONString: viewJson)
             } catch {
                 Log.error(error)
@@ -196,8 +177,39 @@ open class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func emitFeedback(feedbackJson: String, result: FrameworksResult) {
-        // Noop operation on the native sdk so we avoid calling anything here
-        result.success()
+        let block = { [weak self] in
+            guard let self = self else { return }
+            guard let view = self.sparkScanView else {
+                let error = SparkScanError.nilView
+                Log.error(error)
+                result.reject(error: error)
+                return
+            }
+            let jsonValue = JSONValue(string: feedbackJson)
+            var feedback: SparkScanViewFeedback
+            let type = jsonValue.string(forKey: "type")
+
+            var visualFeedbackColor: UIColor?
+            if jsonValue.containsKey("visualFeedbackColor") {
+                visualFeedbackColor = UIColor(sdcHexString: jsonValue.string(forKey: "visualFeedbackColor" ))
+            }
+            if type == "success" {
+                feedback = visualFeedbackColor != nil ? SparkScanViewSuccessFeedback(visualFeedbackColor: visualFeedbackColor!) : SparkScanViewSuccessFeedback()
+            } else {
+                let timeinterval = jsonValue.timeinterval(forKey: "resumeCapturingDelay")
+                if visualFeedbackColor != nil {
+                    feedback = SparkScanViewErrorFeedback(message: jsonValue.string(forKey: "message"),
+                                                          resumeCapturingDelay: timeinterval / 1000,
+                                                          visualFeedbackColor: visualFeedbackColor!)
+                } else {
+                    feedback = SparkScanViewErrorFeedback(message: jsonValue.string(forKey: "message"),
+                                                          resumeCapturingDelay: timeinterval / 1000)
+                }
+            }
+            view.emitFeedback(feedback)
+            result.success(result: nil)
+        }
+        dispatchMain(block)
     }
 
     public func pauseScanning() {
@@ -262,31 +274,16 @@ open class SparkScanModule: NSObject, FrameworkModule {
             result.success(result: nil)
         }
     }
-
+    
     public func setModeEnabled(enabled: Bool) {
         modeEnabled = true
         sparkScan?.isEnabled = enabled
     }
-
+    
     public func isModeEnabled() -> Bool {
         return sparkScan?.isEnabled == true
     }
-
-    public func addFeedbackDelegate(result: FrameworksResult) {
-        self.sparkScanView?.feedbackDelegate = self.feedbackDelegate
-        result.success()
-    }
-
-    public func removeFeedbackDelegate(result: FrameworksResult) {
-        self.sparkScanView?.feedbackDelegate = nil
-        result.success()
-    }
-
-    public func submitFeedbackForBarcode(feedbackJson: String?, result: FrameworksResult) {
-        self.feedbackDelegate.submitFeedback(feedbackJson: feedbackJson)
-        result.success()
-    }
-
+    
     public func disposeView() {
         sparkScanView?.removeFromSuperview()
         sparkScanView?.uiDelegate = nil

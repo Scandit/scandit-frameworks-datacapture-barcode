@@ -24,7 +24,7 @@ fileprivate extension Emitter {
     }
 }
 
-open class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
+public class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
 
     private let emitter: Emitter
 

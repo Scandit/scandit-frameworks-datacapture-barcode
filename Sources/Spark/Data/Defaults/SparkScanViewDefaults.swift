@@ -29,7 +29,6 @@ struct DefaultsSparkScanView: DefaultsEncodable {
             "startCapturingByHoldingText": ViewDefaults.defaultStartCapturingByHoldingText,
             "resumeCapturingText": ViewDefaults.defaultResumeCapturingText,
             "scanningCapturingText": ViewDefaults.defaultScanningCapturingText,
-            "scanningCapturingTextAccurateSingular": ViewDefaults.defaultScanningCapturingTextAccurateSingular,
             "captureButtonActiveBackgroundColor": ViewDefaults.defaultCaptureButtonActiveBackgroundColor.sdcHexString,
             "captureButtonBackgroundColor": ViewDefaults.defaultCaptureButtonBackgroundColor.sdcHexString,
             "captureButtonTintColor": ViewDefaults.defaultCaptureButtonTintColor.sdcHexString,
@@ -38,21 +37,16 @@ struct DefaultsSparkScanView: DefaultsEncodable {
             "toolbarIconInactiveTintColor": ViewDefaults.defaultToolbarIconInactiveTintColor.sdcHexString,
             "SparkScanViewSettings": viewSettings.jsonString,
             "zoomSwitchControlVisible": ViewDefaults.defaultZoomSwitchControlVisibility,
-            "targetModeHintText": ViewDefaults.defaultTargetModeHintText,
-            "shouldShowTargetModeHint": ViewDefaults.defaultShouldShowTargetModeHint,
-            "targetModeHintTextAccurateSingular": ViewDefaults.defaultTargetModeHintTextAccurateSingular,
             "hardwareTriggerSupported": false,
             "toastEnabled": ViewDefaults.defaultToastEnabled,
             "toastBackgroundColor": ViewDefaults.defaultToastBackgroundColor.sdcHexString,
             "toastTextColor": ViewDefaults.defaultToastTextColor.sdcHexString,
             "targetModeEnabledMessage": ViewDefaults.defaultTargetModeEnabledMessage,
-            "targetModeEnabledMessageAccurate": ViewDefaults.defaultTargetModeEnabledMessageAccurate,
             "targetModeDisabledMessage": ViewDefaults.defaultTargetModeDisabledMessage,
-            "targetModeDisabledMessageAccurate": ViewDefaults.defaultTargetModeDisabledMessageAccurate,
             "continuousModeEnabledMessage": ViewDefaults.defaultContinuousModeEnabledMessage,
             "continuousModeDisabledMessage": ViewDefaults.defaultContinuousModeDisabledMessage,
-            "cameraTimeoutMessage": ViewDefaults.defaultCameraTimeoutMessage,
-            "cameraTimeoutMessageAccurate": ViewDefaults.defaultCameraTimeoutMessageAccurate
+            "previewSizeControlVisible": ViewDefaults.defaultPreviewSizeControlVisibility,
+            "cameraSwitchButtonVisible": ViewDefaults.defaultCameraSwitchButtonVisibility,
         ]
     }
 }

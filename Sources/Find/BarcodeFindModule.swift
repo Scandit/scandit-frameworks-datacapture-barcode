@@ -7,18 +7,21 @@
 import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
-public class BarcodeFindModule: NSObject, FrameworkModule {
+open class BarcodeFindModule: NSObject, FrameworkModule {
     private let listener: FrameworksBarcodeFindListener
     private let viewListener: FrameworksBarcodeFindViewUIListener
+    private let barcodeTransformer: FrameworksBarcodeFindTransformer
     private let modeDeserializer: BarcodeFindDeserializer
     private let viewDeserializer: BarcodeFindViewDeserializer
 
     public init(listener: FrameworksBarcodeFindListener,
                 viewListener: FrameworksBarcodeFindViewUIListener,
+                barcodeTransformer: FrameworksBarcodeFindTransformer,
                 modeDeserializer: BarcodeFindDeserializer = BarcodeFindDeserializer(),
                 viewDeserializer: BarcodeFindViewDeserializer = BarcodeFindViewDeserializer()) {
         self.listener = listener
         self.viewListener = viewListener
+        self.barcodeTransformer = barcodeTransformer
         self.modeDeserializer = modeDeserializer
         self.viewDeserializer = viewDeserializer
         super.init()
@@ -82,7 +85,6 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
             let viewJsonValue = jsonValue.object(forKey: "View")
             let viewJson = viewJsonValue.jsonString()
             do {
-                print(barcodeFindModeJson)
                 let mode = try self.modeDeserializer.mode(fromJSONString: barcodeFindModeJson)
 
                 if barcodeFindModeJsonValue.containsKey("itemsToFind") {
@@ -91,11 +93,6 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                     mode.setItemList(data.items)
                 }
 
-                mode.isEnabled = self.modeEnabled
-                if let itemsToFind = barcodeFindModeJsonValue.optionalString(forKey: "itemsToFind"){
-                    let data = BarcodeFindItemsData(jsonString: itemsToFind)
-                    mode.setItemList(data.items)
-                }
                 self.barcodeFind = mode
 
                 let view = try self.viewDeserializer.view(fromJSONString: viewJson,
@@ -109,6 +106,10 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
                     view.startSearching()
                 }
                 self.barcodeFindView = view
+
+                if barcodeFindModeJsonValue.bool(forKey: "hasBarcodeTransformer", default: false) {
+                    self.barcodeFind?.setBarcodeTransformer(self.barcodeTransformer)
+                }
             } catch {
                 result.reject(error: error)
                 return
@@ -223,6 +224,16 @@ public class BarcodeFindModule: NSObject, FrameworkModule {
 
     public func isModeEnabled() -> Bool {
         return barcodeFind?.isEnabled == true
+    }
+
+    public func setBarcodeFindTransformer(result: FrameworksResult) {
+        barcodeFind?.setBarcodeTransformer(self.barcodeTransformer)
+        result.success(result: nil)
+    }
+
+    public func submitBarcodeFindTransformerResult(transformedData: String?, result: FrameworksResult) {
+        self.barcodeTransformer.submitResult(result: transformedData)
+        result.success(result: nil)
     }
 }
 

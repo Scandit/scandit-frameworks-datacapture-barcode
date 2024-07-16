@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycleObserver {
+open class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycleObserver {
     let emitter: Emitter
     var actionListener: FrameworksBarcodePickActionListener
     var scanningListener: FrameworksBarcodePickScanningListener
@@ -196,7 +196,7 @@ public class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCy
     }
 
     public func viewStart() {
-        barcodePickView?.start()
+        dispatchMain { [weak self] in self?.barcodePickView?.start() }
     }
 
     public func viewPause() {
@@ -205,5 +205,9 @@ public class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCy
 
     public func viewFreeze() {
         barcodePickView?.freeze()
+    }
+    
+    public func viewStop() {
+        barcodePickView?.stop()
     }
 }

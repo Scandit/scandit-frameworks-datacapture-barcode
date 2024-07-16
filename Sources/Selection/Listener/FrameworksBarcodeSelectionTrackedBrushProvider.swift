@@ -11,7 +11,7 @@ public enum FrameworksBarcodeSelectionTrackedBrushProviderEvent: String, CaseIte
     case brushForBarcode = "BarcodeSelectionTrackedBrushProvider.brushForBarcode"
 }
 
-public class FrameworksBarcodeSelectionTrackedBrushProvider: NSObject, BarcodeSelectionBrushProvider {
+open class FrameworksBarcodeSelectionTrackedBrushProvider: NSObject, BarcodeSelectionBrushProvider {
     private let emitter: Emitter
     private let queue: DispatchQueue
 
@@ -32,7 +32,7 @@ public class FrameworksBarcodeSelectionTrackedBrushProvider: NSObject, BarcodeSe
         return .transparent
     }
 
-    func finishCallback(brushJson: String?, selectionIdentifier: String?) {
+    public func finishCallback(brushJson: String?, selectionIdentifier: String?) {
         guard let selectionIdentifier = selectionIdentifier,
               let brushJson = brushJson, let brush = Brush(jsonString: brushJson) else { return }
         queue.async {
@@ -40,7 +40,7 @@ public class FrameworksBarcodeSelectionTrackedBrushProvider: NSObject, BarcodeSe
         }
     }
 
-    func clearCache() {
+    public func clearCache() {
         cachedBrushes.removeAll()
     }
 }

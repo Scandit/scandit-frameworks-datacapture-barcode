@@ -7,7 +7,7 @@
 import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
-public class FrameworksBarcodeFindViewUIListener: NSObject, BarcodeFindViewUIDelegate {
+open class FrameworksBarcodeFindViewUIListener: NSObject, BarcodeFindViewUIDelegate {
     private let emitter: Emitter
     private var isEnabled = AtomicBool()
     private let didTapFinishButtonEvent = Event(.finishButtonTapped)

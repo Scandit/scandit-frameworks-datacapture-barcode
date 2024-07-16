@@ -12,12 +12,6 @@ struct BrushAndTrackedBarcode {
     let trackedBarcodeId: Int
     let sessionFrameSequenceId: Int?
 
-    enum CodingKeys: String, CodingKey {
-        case brush
-        case trackedBarcodeId = "trackedBarcodeID"
-        case sessionFrameSequenceId = "sessionFrameSequenceID"
-    }
-
     init(_ brush: Brush?, _ trackedBarcodeId: Int, _ sessionFrameSequenceId: Int?) {
         self.brush = brush
         self.trackedBarcodeId = trackedBarcodeId

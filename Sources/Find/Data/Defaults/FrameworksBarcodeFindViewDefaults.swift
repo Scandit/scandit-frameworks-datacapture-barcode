@@ -21,9 +21,7 @@ struct FrameworksBarcodeFindViewDefaults: DefaultsEncodable {
             "textForPointAtBarcodesToSearchHint": BarcodeFindViewDefaults.defaultTextForPointAtBarcodesToSearchHint,
             "textForMoveCloserToBarcodesHint": BarcodeFindViewDefaults.defaultTextForMoveCloserToBarcodesHint,
             "textForTapShutterToPauseScreenHint": BarcodeFindViewDefaults.defaultTextForTapShutterToPauseScreenHint,
-            "textForTapShutterToResumeSearchHint": BarcodeFindViewDefaults.defaultTextForTapShutterToResumeSearchHint,
-            "textForItemListUpdatedHint": BarcodeFindViewDefaults.defaultTextForItemListUpdatedHint,
-            "textForItemListUpdatedWhenPausedHint": BarcodeFindViewDefaults.defaultTextForItemListUpdatedWhenPausedHint
+            "textForTapShutterToResumeSearchHint": BarcodeFindViewDefaults.defaultTextForTapShutterToResumeSearchHint
         ]
     }
 }

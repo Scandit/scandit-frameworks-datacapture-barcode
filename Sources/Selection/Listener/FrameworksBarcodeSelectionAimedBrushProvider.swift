@@ -11,7 +11,7 @@ public enum FrameworksBarcodeSelectionAimedBrushProviderEvent: String, CaseItera
     case brushForBarcode = "BarcodeSelectionAimedBrushProvider.brushForBarcode"
 }
 
-open class FrameworksBarcodeSelectionAimedBrushProvider: NSObject, BarcodeSelectionBrushProvider {
+public class FrameworksBarcodeSelectionAimedBrushProvider: NSObject, BarcodeSelectionBrushProvider {
     private let emitter: Emitter
     private let queue: DispatchQueue
 

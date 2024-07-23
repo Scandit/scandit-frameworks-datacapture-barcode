@@ -6,7 +6,7 @@
 
 import ScanditFrameworksCore
 
-open class BarcodeModule: NSObject, FrameworkModule {
+public class BarcodeModule: NSObject, FrameworkModule {
     public func didStart() {}
 
     public func didStop() {}

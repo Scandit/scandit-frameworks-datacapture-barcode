@@ -27,7 +27,7 @@ extension Event {
     }
 }
 
-open class FrameworksBarcodeFindListener: NSObject, BarcodeFindListener {
+public class FrameworksBarcodeFindListener: NSObject, BarcodeFindListener {
     private let emitter: Emitter
     private var isEnabled = AtomicBool()
     private let didStartSearchEvent = Event(.didStartSearch)

@@ -12,7 +12,7 @@ public enum BarcodeSelectionError: Error {
     case nilOverlay
 }
 
-open class BarcodeSelectionModule: NSObject, FrameworkModule {
+public class BarcodeSelectionModule: NSObject, FrameworkModule {
     private let barcodeSelectionListener: FrameworksBarcodeSelectionListener
     private var aimedBrushProviderFlag: Bool = false
     private var trackedBrushProviderFlag: Bool = false

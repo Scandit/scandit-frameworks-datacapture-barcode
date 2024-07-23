@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCycleObserver {
+public class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCycleObserver {
     private let barcodeCountListener: FrameworksBarcodeCountListener
     private let captureListListener: FrameworksBarcodeCountCaptureListListener
     private let viewListener: FrameworksBarcodeCountViewListener
@@ -54,9 +54,6 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     }
 
     public func didStop() {
-        removeBarcodeCountListener()
-        removeBarcodeCountViewListener()
-        removeBarcodeCountViewUiListener()
         DeserializationLifeCycleDispatcher.shared.detach(observer: self)
         disposeBarcodeCountView()
     }
@@ -66,7 +63,6 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     }
 
     public let defaults: DefaultsEncodable = BarcodeCountDefaults.shared
-
 
     public func addViewFromJson(parent: UIView, viewJson: String) {
         let block = { [weak self] in
@@ -80,7 +76,7 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
                 Log.error("Error during the barcode count view deserialization.\nError: Json string doesn't contain `BarcodeCount`")
                 return
             }
-            let barcodeCountModeJson = json.getObjectAsString(forKey: "BarcodeCount")
+            let barcodeCountModeJson = json.object(forKey: "BarcodeCount").jsonString()
 
             var mode: BarcodeCount
             do {
@@ -97,7 +93,7 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
                 Log.error("Error during the barcode count view deserialization.\nError: Json string doesn't contain `View`")
                 return
             }
-            let barcodeCountViewJson = json.getObjectAsString(forKey: "View")
+            let barcodeCountViewJson = json.object(forKey: "View").jsonString()
             do {
                 let view = try self.barcodeCountViewDeserializer.view(fromJSONString: barcodeCountViewJson,
                                                                       barcodeCount: mode,
@@ -263,17 +259,5 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     
     public func isModeEnabled() -> Bool {
         return barcodeCount?.isEnabled == true
-    }
-}
-
-
-
-private extension JSONValue {
-    func getObjectAsString(forKey: String) -> String {
-        if self.containsObject(withKey: forKey) {
-            return self.object(forKey: forKey).jsonString()
-        }
-        
-        return self.string(forKey: forKey)
     }
 }

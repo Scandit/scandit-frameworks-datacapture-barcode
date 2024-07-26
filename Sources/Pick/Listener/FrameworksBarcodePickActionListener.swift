@@ -44,17 +44,17 @@ fileprivate extension Emitter {
     }
 }
 
-class FrameworksBarcodePickActionListener: NSObject, BarcodePickActionListener {
+open class FrameworksBarcodePickActionListener: NSObject, BarcodePickActionListener {
     private let emitter: Emitter
     private var events: [String: (Bool) -> Void] = [:]
     private let coordinator = ReadWriteCoordinator()
     private var hasListener = AtomicBool()
 
-    init(emitter: Emitter) {
+    public init(emitter: Emitter) {
         self.emitter = emitter
     }
 
-    func didPickItem(withData data: String, completionHandler: @escaping (Bool) -> Void) {
+    public func didPickItem(withData data: String, completionHandler: @escaping (Bool) -> Void) {
         guard hasListener.value else { return }
         coordinator.blockingWrite {
             events[data] = completionHandler
@@ -62,7 +62,7 @@ class FrameworksBarcodePickActionListener: NSObject, BarcodePickActionListener {
         emitter.emit(.pick, payload: ["itemData": data])
     }
     
-    func didUnpickItem(withData data: String, completionHandler: @escaping (Bool) -> Void) {
+    public func didUnpickItem(withData data: String, completionHandler: @escaping (Bool) -> Void) {
         guard hasListener.value else { return }
         coordinator.blockingWrite {
             events[data] = completionHandler
@@ -70,20 +70,20 @@ class FrameworksBarcodePickActionListener: NSObject, BarcodePickActionListener {
         emitter.emit(.unpick, payload: ["itemData": data])
     }
 
-    func finishPickAction(with data: String, result: Bool) {
+    public func finishPickAction(with data: String, result: Bool) {
         let callback = coordinator.read {
             events.removeValue(forKey: data)
         }
         callback?(result)
     }
 
-    func enable() {
+    public func enable() {
         if !hasListener.value {
             hasListener.value = true
         }
     }
 
-    func disable() {
+    public func disable() {
         if hasListener.value {
             hasListener.value = false
         }

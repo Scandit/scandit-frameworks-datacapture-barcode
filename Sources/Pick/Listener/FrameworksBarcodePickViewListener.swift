@@ -25,43 +25,43 @@ fileprivate extension Emitter {
     }
 }
 
-class FrameworksBarcodePickViewListener : NSObject, BarcodePickViewListener {
+open class FrameworksBarcodePickViewListener : NSObject, BarcodePickViewListener {
     private let emitter: Emitter
     private var isEnabled = AtomicBool()
 
-    init(emitter: Emitter) {
+    public init(emitter: Emitter) {
         self.emitter = emitter
     }
 
-    func enable() {
+    public func enable() {
         if isEnabled.value { return }
         isEnabled.value = true
     }
 
-    func disable() {
+    public func disable() {
         guard isEnabled.value else { return }
         isEnabled.value = false
     }
     
-    func barcodePickViewDidFreezeScanning(_ view: BarcodePickView) {
+    public func barcodePickViewDidFreezeScanning(_ view: BarcodePickView) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickViewListenerEvents.didFreezeScanning) else { return }
         emitter.emit(.didFreezeScanning, payload: [:])
     }
     
-    func barcodePickViewDidStopScanning(_ view: BarcodePickView) {
+    public func barcodePickViewDidStopScanning(_ view: BarcodePickView) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickViewListenerEvents.didStopScanning) else { return }
         emitter.emit(.didStopScanning, payload: [:])
     }
     
-    func barcodePickViewDidPauseScanning(_ view: BarcodePickView) {
+    public func barcodePickViewDidPauseScanning(_ view: BarcodePickView) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickViewListenerEvents.didPauseScanning) else { return }
         emitter.emit(.didPauseScanning, payload: [:])
     }
     
-    func barcodePickViewDidStartScanning(_ view: BarcodePickView) {
+    public func barcodePickViewDidStartScanning(_ view: BarcodePickView) {
         guard isEnabled.value else { return }
         guard emitter.hasListener(for: BarcodePickViewListenerEvents.didStartScanning) else { return }
         emitter.emit(.didStartScanning, payload: [:])

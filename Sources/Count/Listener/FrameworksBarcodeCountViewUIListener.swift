@@ -7,11 +7,11 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-public class FrameworksBarcodeCountViewUIListener: NSObject, BarcodeCountViewUIDelegate {
-    private enum Constants {
-        static let exitButtonTapped = "BarcodeCountViewUiListener.onExitButtonTapped"
-        static let listButtonTapped = "BarcodeCountViewUiListener.onListButtonTapped"
-        static let singleScanButtonTapped = "BarcodeCountViewUiListener.onSingleScanButtonTapped"
+open class FrameworksBarcodeCountViewUIListener: NSObject, BarcodeCountViewUIDelegate {
+    public enum Constants {
+        public static let exitButtonTapped = "BarcodeCountViewUiListener.onExitButtonTapped"
+        public static let listButtonTapped = "BarcodeCountViewUiListener.onListButtonTapped"
+        public static let singleScanButtonTapped = "BarcodeCountViewUiListener.onSingleScanButtonTapped"
     }
 
     private let emitter: Emitter

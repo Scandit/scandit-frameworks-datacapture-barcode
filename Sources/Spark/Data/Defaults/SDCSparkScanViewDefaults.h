@@ -14,12 +14,10 @@ SDC_EXPORTED_SYMBOL
 @interface SDCSparkScanViewDefaults : NSObject
 
 @property (class, nonatomic, readonly) BOOL defaultBarcodeCountButtonVisibility;
-@property (class, nonatomic, readonly) BOOL defaultFastFindButtonVisibility;
+@property (class, nonatomic, readonly) BOOL defaultBarcodeFindButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultTargetModeButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultScanningBehaviorButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultTorchButtonVisibility;
-@property (class, nonatomic, readonly) BOOL defaultSoundModeButtonVisibility;
-@property (class, nonatomic, readonly) BOOL defaultHapticModeButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultHandModeButtonVisibility;
 @property (class, nonatomic, readonly) BOOL defaultZoomSwitchControlVisibility;
 @property (class, nonatomic, readonly) UIColor *defaultCaptureButtonBackgroundColor;
@@ -34,6 +32,7 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) NSString *defaultResumeCapturingText;
 @property (class, nonatomic, readonly) NSString *defaultScanningCapturingText;
 @property (class, nonatomic, readonly) BOOL defaultPreviewSizeControlVisibility;
+@property (class, nonatomic, readonly) BOOL defaultCameraSwitchButtonVisibility;
 
 // Toast
 @property (class, nonatomic, assign, readonly) BOOL defaultToastEnabled;

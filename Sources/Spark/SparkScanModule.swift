@@ -14,7 +14,7 @@ public enum SparkScanError: Error {
     case nilParent
 }
 
-public class SparkScanModule: NSObject, FrameworkModule {
+open class SparkScanModule: NSObject, FrameworkModule {
     private let sparkScanListener: FrameworksSparkScanListener
     private let sparkScanViewUIListener: FrameworksSparkScanViewUIListener
     private let feedbackDelegate: FrameworksSparkScanFeedbackDelegate
@@ -133,7 +133,7 @@ public class SparkScanModule: NSObject, FrameworkModule {
                                                                             with: context,
                                                                             mode: mode,
                                                                             parentView: container)
-                sparkScanView.viewWillAppear()
+                sparkScanView.prepareScanning()
                 if sparkScanViewJson.containsKey("hasFeedbackDelegate") {
                     sparkScanView.feedbackDelegate = self.feedbackDelegate
                 }

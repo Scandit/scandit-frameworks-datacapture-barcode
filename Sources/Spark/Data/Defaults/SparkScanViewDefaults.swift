@@ -20,10 +20,8 @@ struct DefaultsSparkScanView: DefaultsEncodable {
             "scanningBehaviorButtonVisible": ViewDefaults.defaultScanningBehaviorButtonVisibility,
             "handModeButtonVisible": ViewDefaults.defaultHandModeButtonVisibility,
             "barcodeCountButtonVisible": ViewDefaults.defaultBarcodeCountButtonVisibility,
-            "fastFindButtonVisible": ViewDefaults.defaultFastFindButtonVisibility,
+            "barcodeFindButtonVisible": ViewDefaults.defaultBarcodeFindButtonVisibility,
             "targetModeButtonVisible": ViewDefaults.defaultTargetModeButtonVisibility,
-            "soundModeButtonVisible": ViewDefaults.defaultSoundModeButtonVisibility,
-            "hapticModeButtonVisible": ViewDefaults.defaultHapticModeButtonVisibility,
             "stopCapturingText": ViewDefaults.defaultStopCapturingText,
             "startCapturingText": ViewDefaults.defaultStartCapturingText,
             "startCapturingByHoldingText": ViewDefaults.defaultStartCapturingByHoldingText,
@@ -45,7 +43,8 @@ struct DefaultsSparkScanView: DefaultsEncodable {
             "targetModeDisabledMessage": ViewDefaults.defaultTargetModeDisabledMessage,
             "continuousModeEnabledMessage": ViewDefaults.defaultContinuousModeEnabledMessage,
             "continuousModeDisabledMessage": ViewDefaults.defaultContinuousModeDisabledMessage,
-            "previewSizeControlVisible": ViewDefaults.defaultPreviewSizeControlVisibility
+            "previewSizeControlVisible": ViewDefaults.defaultPreviewSizeControlVisibility,
+            "cameraSwitchButtonVisible": ViewDefaults.defaultCameraSwitchButtonVisibility,
         ]
     }
 }

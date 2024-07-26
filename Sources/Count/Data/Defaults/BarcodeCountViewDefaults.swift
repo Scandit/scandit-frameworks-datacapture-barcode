@@ -47,7 +47,10 @@ struct DefaultsBarcodeCountView: DefaultsEncodable {
             "textForTapShutterToScanHint": ViewDefaults.defaultTextForTapShutterToScanHint,
             "textForScanningHint": ViewDefaults.defaultTextForScanningHint,
             "textForMoveCloserAndRescanHint": ViewDefaults.defaultTextForMoveCloserAndRescanHint,
-            "textForMoveFurtherAndRescanHint": ViewDefaults.defaultTextForMoveFurtherAndRescanHint
+            "textForMoveFurtherAndRescanHint": ViewDefaults.defaultTextForMoveFurtherAndRescanHint,
+            "shouldShowListProgressBar": ViewDefaults.defaultShouldShowListProgressBar,
+            "shouldShowTorchControl": ViewDefaults.defaultShouldShowTorchControl,
+            "torchControlPosition": ViewDefaults.defaultTorchControlPosition
         ]
     }
 }

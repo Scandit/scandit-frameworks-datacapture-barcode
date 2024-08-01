@@ -133,7 +133,7 @@ open class SparkScanModule: NSObject, FrameworkModule {
                                                                             with: context,
                                                                             mode: mode,
                                                                             parentView: container)
-                sparkScanView.prepareScanning()
+                sparkScanView.viewWillAppear()
                 if sparkScanViewJson.containsKey("hasFeedbackDelegate") {
                     sparkScanView.feedbackDelegate = self.feedbackDelegate
                 }

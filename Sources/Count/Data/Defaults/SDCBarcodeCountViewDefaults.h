@@ -43,8 +43,6 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) NSString *defaultSingleScanButtonAccessibilityHint;
 @property (class, nonatomic, readonly) NSString *defaultSingleScanButtonAccessibilityLabel;
 @property (class, nonatomic, readonly) BOOL defaultShouldShowListProgressBar;
-@property (class, nonatomic, readonly) BOOL defaultShouldShowTorchControl;
-@property (class, nonatomic, readonly) NSString *defaultTorchControlPosition;
 @end
 
 NS_ASSUME_NONNULL_END

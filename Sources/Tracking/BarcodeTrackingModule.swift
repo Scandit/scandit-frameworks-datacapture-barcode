@@ -38,6 +38,8 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
         }
     }
     
+    private var basicOverlay: BarcodeTrackingBasicOverlay?
+    private var advancedOverlay: BarcodeTrackingAdvancedOverlay?
     private var advancedOverlayViewPool: AdvancedOverlayViewPool?
     
     private var modeEnabled = true
@@ -85,9 +87,7 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
     }
     
     public func clearBasicOverlayTrackedBarcodeBrushes() {
-        if let overlay: BarcodeTrackingBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            overlay.clearTrackedBarcodeBrushes()
-        }
+        basicOverlay?.clearTrackedBarcodeBrushes()
     }
     
     public func setBasicOverlayBrush(with brushJson: String) {
@@ -95,9 +95,7 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
         let data = BrushAndTrackedBarcode(jsonValue: jsonValue)
         if let trackedBarcode = barcodeTrackingListener.getTrackedBarcodeFromLastSession(barcodeId: data.trackedBarcodeId,
                                                                                          sessionId: data.sessionFrameSequenceId) {
-            if let overlay: BarcodeTrackingBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-                overlay.setBrush(data.brush, for: trackedBarcode)
-            }
+            basicOverlay?.setBrush(data.brush, for: trackedBarcode)
         }
     }
     
@@ -114,18 +112,14 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
     public func removeAdvancedOverlayListener() {
         dispatchMainSync {
             self.barcodeTrackingAdvancedOverlayListener.disable()
-            if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-                overlay.delegate = nil
-            }
+            self.advancedOverlay?.delegate = nil
             self.advancedOverlayViewPool?.clear()
         }
     }
     
     public func clearAdvancedOverlayTrackedBarcodeViews() {
-        if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            dispatchMainSync {
-                overlay.clearTrackedBarcodeViews()
-            }
+        dispatchMainSync {
+            self.advancedOverlay?.clearTrackedBarcodeViews()
         }
     }
     
@@ -135,18 +129,14 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
                                                                                      sessionId: data.sessionFrameSequenceId) else { return }
         guard let widgedData = data.widgetData else {
             advancedOverlayViewPool?.removeView(for: barcode)
-            if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-                dispatchMainSync {
-                    overlay.setView(nil, for: barcode)
-                }
+            dispatchMainSync {
+                self.advancedOverlay?.setView(nil, for: barcode)
             }
             return
         }
         guard let view = advancedOverlayViewPool?.getOrCreateView(barcode: barcode, widgetData: widgedData) else { return }
-        if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            dispatchMainSync {
-                overlay.setView(view, for: barcode)
-            }
+        dispatchMainSync {
+            self.advancedOverlay?.setView(view, for: barcode)
         }
     }
     
@@ -164,10 +154,8 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
                 payload: ["trackedBarcode": barcode.jsonString]
             )
         }
-        if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            dispatchMainSync {
-                overlay.setView(view, for: barcode)
-            }
+        dispatchMainSync {
+            self.advancedOverlay?.setView(view, for: barcode)
         }
     }
     
@@ -177,10 +165,8 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
                                                                                      sessionId: data.sessionFrameSequenceId) else {
             return
         }
-        if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            dispatchMainSync {
-                overlay.setAnchor(data.anchor, for: barcode)
-            }
+        dispatchMainSync {
+            self.advancedOverlay?.setAnchor(data.anchor, for: barcode)
         }
     }
     
@@ -190,10 +176,8 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
                                                                                      sessionId: data.sessionFrameSequenceId) else {
             return
         }
-        if let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            dispatchMainSync {
-                overlay.setOffset(data.offset, for: barcode)
-            }
+        dispatchMainSync {
+            self.advancedOverlay?.setOffset(data.offset, for: barcode)
         }
     }
     
@@ -238,7 +222,7 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
     }
     
     public func updateBasicOverlay(overlayJson: String, result: FrameworksResult) {
-        guard let overlay: BarcodeTrackingBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() else {
+        guard let overlay = self.basicOverlay else {
             result.success(result: nil)
             return
         }
@@ -252,7 +236,7 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
     }
     
     public func updateAdvancedOverlay(overlayJson: String, result: FrameworksResult) {
-        guard let overlay: BarcodeTrackingAdvancedOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() else {
+        guard let overlay = self.advancedOverlay else {
             result.success(result: nil)
             return
         }
@@ -267,7 +251,19 @@ open class BarcodeTrackingModule: NSObject, FrameworkModule {
     
     func onModeRemovedFromContext() {
         barcodeTracking = nil
+        
+        if let basicOverlay = self.basicOverlay, let dataCaptureView = self.dataCaptureView {
+            dataCaptureView.removeOverlay(basicOverlay)
+        }
+        self.basicOverlay = nil
+        
+        if let advancedOverlay = self.advancedOverlay, let dataCaptureView = self.dataCaptureView {
+            dataCaptureView.removeOverlay(advancedOverlay)
+        }
+        self.advancedOverlay = nil
+        
         self.advancedOverlayViewPool?.clear()
+        self.advancedOverlay = nil
     }
 }
 
@@ -306,7 +302,9 @@ extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
                                             didFinishDeserializingBasicOverlay overlay: BarcodeTrackingBasicOverlay,
                                             from jsonValue: JSONValue) {
-        overlay.delegate = barcodeTrackingBasicOverlayListener
+        basicOverlay?.delegate = nil
+        basicOverlay = overlay
+        basicOverlay?.delegate = barcodeTrackingBasicOverlayListener
     }
     
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
@@ -318,13 +316,31 @@ extension BarcodeTrackingModule: BarcodeTrackingDeserializerDelegate {
     public func barcodeTrackingDeserializer(_ deserializer: BarcodeTrackingDeserializer,
                                             didFinishDeserializingAdvancedOverlay overlay: BarcodeTrackingAdvancedOverlay,
                                             from jsonValue: JSONValue) {
-        overlay.delegate = barcodeTrackingAdvancedOverlayListener
+        advancedOverlay?.delegate = nil
+        advancedOverlay = overlay
+        advancedOverlay?.delegate = barcodeTrackingAdvancedOverlayListener
     }
 }
 
 extension BarcodeTrackingModule: DeserializationLifeCycleObserver {
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
+    }
+    
+    public func dataCaptureView(deserialized view: DataCaptureView?) {
+        self.dataCaptureView = view
+        
+        guard let dcView = view else {
+            return
+        }
+        
+        if let basicTrackingOverlay = self.basicOverlay {
+            dcView.addOverlay(basicTrackingOverlay)
+        }
+        
+        if let advancedTrackingOverlay = self.advancedOverlay {
+            dcView.addOverlay(advancedTrackingOverlay)
+        }
     }
     
     public func dataCaptureContext(addMode modeJson: String) throws {
@@ -365,7 +381,7 @@ extension BarcodeTrackingModule: DeserializationLifeCycleObserver {
         self.onModeRemovedFromContext()
     }
     
-    public func dataCaptureView(addOverlay overlayJson: String, to view: DataCaptureView) throws {
+    public func dataCaptureView(addOverlay overlayJson: String) throws {
         let overlayType = JSONValue(string: overlayJson).string(forKey: "type")
         if overlayType != "barcodeTrackingBasic" && overlayType != "barcodeTrackingAdvanced" {
             return
@@ -380,7 +396,46 @@ extension BarcodeTrackingModule: DeserializationLifeCycleObserver {
             try barcodeTrackingDeserializer.basicOverlay(fromJSONString: overlayJson, withMode: mode) :
             try barcodeTrackingDeserializer.advancedOverlay(fromJSONString: overlayJson, withMode: mode)
             
-            DataCaptureViewHandler.shared.addOverlayToView(view, overlay: overlay)
+            self.dataCaptureView?.addOverlay(overlay)
         }
+    }
+    
+    public func dataCaptureView(removeOverlay overlayJson: String) {
+        let overlayType = JSONValue(string: overlayJson).string(forKey: "type")
+        if overlayType != "barcodeTrackingBasic" && overlayType != "barcodeTrackingAdvanced" {
+            return
+        }
+        
+       if overlayType == "barcodeTrackingBasic" {
+            removeCurrentBasicaOverlay()
+        } else {
+             removeCurrentAdvancedOverlay()
+        }
+    }
+    
+    public func dataCaptureViewRemoveAllOverlays() {
+        removeCurrentBasicaOverlay()
+        removeCurrentAdvancedOverlay()
+    }
+    
+    private func removeCurrentBasicaOverlay() {
+        guard let overlay = self.basicOverlay else {
+            return
+        }
+        
+        dispatchMainSync {
+            self.dataCaptureView?.removeOverlay(overlay)
+        }
+        self.basicOverlay = nil
+    }
+    
+    private func removeCurrentAdvancedOverlay() {
+        guard let overlay = self.advancedOverlay else {
+            return
+        }
+        dispatchMainSync {
+            self.dataCaptureView?.removeOverlay(overlay)
+        }
+        self.advancedOverlay = nil
     }
 }

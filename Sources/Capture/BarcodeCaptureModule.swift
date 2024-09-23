@@ -12,6 +12,8 @@ open class BarcodeCaptureModule: NSObject, FrameworkModule {
     private let barcodeCaptureListener: FrameworksBarcodeCaptureListener
     private var modeEnabled = true
     private var context: DataCaptureContext?
+    private var dataCaptureView: DataCaptureView?
+    private var barcodeCaptureOverlay: BarcodeCaptureOverlay?
 
     private var barcodeCapture: BarcodeCapture? {
         willSet {
@@ -102,7 +104,7 @@ open class BarcodeCaptureModule: NSObject, FrameworkModule {
     }
     
     public func updateOverlay(overlayJson: String, result: FrameworksResult) {
-        guard let overlay: BarcodeCaptureOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() else {
+        guard let overlay = self.barcodeCaptureOverlay else {
             result.success(result: nil)
             return
         }
@@ -160,13 +162,23 @@ extension BarcodeCaptureModule: BarcodeCaptureDeserializerDelegate {
         public func barcodeCaptureDeserializer(_ deserializer: BarcodeCaptureDeserializer,
                                         didFinishDeserializingOverlay overlay: BarcodeCaptureOverlay,
                                         from jsonValue: JSONValue) {
-            // not used in frameworks
+            self.barcodeCaptureOverlay = overlay
         }
 }
 
 extension BarcodeCaptureModule: DeserializationLifeCycleObserver {
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
+    }
+    
+    public func dataCaptureView(deserialized view: DataCaptureView?) {
+        self.dataCaptureView = view
+        
+        guard let overlay = barcodeCaptureOverlay, let dcView = view else {
+            return
+        }
+        
+        dcView.addOverlay(overlay)
     }
     
     public func dataCaptureContext(addMode modeJson: String) throws {
@@ -207,7 +219,7 @@ extension BarcodeCaptureModule: DeserializationLifeCycleObserver {
         self.barcodeCapture = nil
     }
     
-    public func dataCaptureView(addOverlay overlayJson: String, to view: DataCaptureView) throws {
+    public func dataCaptureView(addOverlay overlayJson: String) throws {
         if JSONValue(string: overlayJson).string(forKey: "type") != "barcodeCapture" {
             return
         }
@@ -218,7 +230,30 @@ extension BarcodeCaptureModule: DeserializationLifeCycleObserver {
         
         try dispatchMainSync {
             let overlay = try barcodeCaptureDeserializer.overlay(fromJSONString: overlayJson, withMode: mode)
-            DataCaptureViewHandler.shared.addOverlayToView(view, overlay: overlay)
+            dataCaptureView?.addOverlay(overlay)
         }
+    }
+    
+    public func dataCaptureView(removeOverlay overlayJson: String) {
+        if JSONValue(string: overlayJson).string(forKey: "type") != "barcodeCapture" {
+            return
+        }
+
+        removeCurrentOverlay()
+    }
+    
+    public func dataCaptureViewRemoveAllOverlays() {
+        removeCurrentOverlay()
+    }
+    
+    private func removeCurrentOverlay() {
+        guard let overlay = self.barcodeCaptureOverlay else {
+            return
+        }
+        
+        dispatchMainSync {
+            self.dataCaptureView?.removeOverlay(overlay)
+        }
+        self.barcodeCaptureOverlay = nil
     }
 }

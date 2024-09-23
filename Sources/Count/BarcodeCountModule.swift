@@ -36,8 +36,6 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     public var barcodeCountView: BarcodeCountView?
 
     private var barcodeCountCaptureList: BarcodeCountCaptureList?
-    
-    private var barcodeCountFeedback: BarcodeCountFeedback?
 
     private var barcodeCount: BarcodeCount? {
         willSet {
@@ -65,15 +63,6 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
 
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
-    }
-    
-    public func didDisposeDataCaptureContext() {
-        self.context = nil
-        self.barcodeCountView?.delegate = nil
-        self.barcodeCountView?.uiDelegate = nil
-        self.barcodeCountView = nil
-        self.barcodeCount?.removeListener(barcodeCountListener)
-        self.barcodeCount = nil
     }
 
     public let defaults: DefaultsEncodable = BarcodeCountDefaults.shared
@@ -118,14 +107,6 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
                 view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 parent.addSubview(view)
                 self.barcodeCountView = view
-                
-                // update feedback in case the update call did run before the creation of the mode
-                if let feedback = barcodeCountFeedback {
-                    dispatchMain { [weak self] in
-                        mode.feedback = feedback
-                        self?.barcodeCountFeedback = nil
-                    }
-                }
             } catch {
                 Log.error("Error during the barcode count view deserialization.\nError:", error: error)
                 return
@@ -283,45 +264,9 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     public func isModeEnabled() -> Bool {
         return barcodeCount?.isEnabled == true
     }
-    
-    public func updateFeedback(feedbackJson: String, result: FrameworksResult) {
-        guard let jsonData = feedbackJson.data(using: .utf8) else {
-            result.reject(code: "-1", message: "Invalid feedback json", details: nil)
-            return
-        }
-        
-        do {
-            if let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
-                let newFeedback = barcodeCount?.feedback ?? BarcodeCountFeedback.default
-                
-                if let successData = json["success"] as? [String: Any] {
-                    if let success = successData.encodeToJSONString() {
-                        newFeedback.success = try Feedback(fromJSONString: success)
-                    }
-                }
-                
-                if let failureData = json["failure"] as? [String: Any] {
-                    if let failure = failureData.encodeToJSONString() {
-                        newFeedback.failure = try Feedback(fromJSONString: failure)
-                    }
-                }
-                
-                barcodeCountFeedback = newFeedback
-            }
-            
-            // in case we don't have a mode yet, it will return success and cache the new
-            // feedback to be applied after the creation of the view.
-             if let mode = barcodeCount, let feedback = barcodeCountFeedback {
-                mode.feedback = feedback
-                barcodeCountFeedback = nil
-            }
-        
-            result.success()
-        } catch let error {
-            result.reject(error: error)
-        }
-    }
 }
+
+
 
 private extension JSONValue {
     func getObjectAsString(forKey: String) -> String {

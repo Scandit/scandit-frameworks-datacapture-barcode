@@ -39,8 +39,6 @@ open class BarcodeFindModule: NSObject, FrameworkModule {
     private var context: DataCaptureContext?
 
     private var modeEnabled = true
-    
-    private var barcodeFindFeedback: BarcodeFindFeedback?
 
     public var barcodeFindView: BarcodeFindView? {
         willSet {
@@ -111,14 +109,6 @@ open class BarcodeFindModule: NSObject, FrameworkModule {
 
                 if barcodeFindModeJsonValue.bool(forKey: "hasBarcodeTransformer", default: false) {
                     self.barcodeFind?.setBarcodeTransformer(self.barcodeTransformer)
-                }
-                
-                // update feedback in case the update call did run before the creation of the mode
-                if let feedback = barcodeFindFeedback {
-                    dispatchMain { [weak self] in
-                        mode.feedback = feedback
-                        self?.barcodeFindFeedback = nil
-                    }
                 }
             } catch {
                 result.reject(error: error)
@@ -245,32 +235,10 @@ open class BarcodeFindModule: NSObject, FrameworkModule {
         self.barcodeTransformer.submitResult(result: transformedData)
         result.success(result: nil)
     }
-    
-    public func updateFeedback(feedbackJson: String, result: FrameworksResult) {
-        do {
-            barcodeFindFeedback = try BarcodeFindFeedback(fromJSONString: feedbackJson)
-            // in case we don't have a mode yet, it will return success and cache the new
-            // feedback to be applied after the creation of the view.
-             if let mode = barcodeFind, let feedback = barcodeFindFeedback {
-                mode.feedback = feedback
-                barcodeFindFeedback = nil
-            }
-        
-            result.success()
-        } catch let error {
-            result.reject(error: error)
-        }
-    }
 }
 
 extension BarcodeFindModule: DeserializationLifeCycleObserver {
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
-    }
-    
-    public func didDisposeDataCaptureContext() {
-        self.context = nil
-        self.barcodeFindView = nil
-        self.barcodeFind = nil
     }
 }

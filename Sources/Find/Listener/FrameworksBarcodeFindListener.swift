@@ -8,10 +8,10 @@ import ScanditFrameworksCore
 import ScanditBarcodeCapture
 
 public enum FrameworksBarcodeFindEvent: String, CaseIterable {
-    case didStartSearch = "BarcodeFindListener.onSearchStarted"
-    case didPauseSearch = "BarcodeFindListener.onSearchPaused"
-    case didStopSearch = "BarcodeFindListener.onSearchStopped"
-    case finishButtonTapped = "BarcodeFindViewUiListener.onFinishButtonTapped"
+    case didStartSearch = "FrameworksBarcodeFindListener.onSearchStarted"
+    case didPauseSearch = "FrameworksBarcodeFindListener.onSearchPaused"
+    case didStopSearch = "FrameworksBarcodeFindListener.onSearchStopped"
+    case finishButtonTapped = "FrameworksBarcodeFindViewUiListener.onFinishButtonTapped"
     case transformBarcodeData = "BarcodeFindTransformer.transformBarcodeData"
 }
 

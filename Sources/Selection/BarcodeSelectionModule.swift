@@ -20,6 +20,7 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
     private let trackedBrushProvider: FrameworksBarcodeSelectionTrackedBrushProvider
     private let barcodeSelectionDeserializer: BarcodeSelectionDeserializer
     private var context: DataCaptureContext?
+    private var dataCaptureView: DataCaptureView?
     
     private var modeEnabled = true
 
@@ -31,6 +32,8 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
             barcodeSelection?.addListener(barcodeSelectionListener)
         }
     }
+
+    private var barcodeSelectionBasicOverlay: BarcodeSelectionBasicOverlay?
 
     public init(barcodeSelectionListener: FrameworksBarcodeSelectionListener,
                 aimedBrushProvider: FrameworksBarcodeSelectionAimedBrushProvider,
@@ -52,8 +55,11 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
         Deserializers.Factory.remove(barcodeSelectionDeserializer)
         self.barcodeSelectionDeserializer.delegate = nil
         DeserializationLifeCycleDispatcher.shared.detach(observer: self)
-        removeAimedBarcodeBrushProvider()
-        removeTrackedBarcodeBrushProvider()
+        aimedBrushProvider.clearCache()
+        trackedBrushProvider.clearCache()
+        barcodeSelectionBasicOverlay?.setAimedBarcodeBrushProvider(nil)
+        barcodeSelectionBasicOverlay?.setTrackedBarcodeBrushProvider(nil)
+        barcodeSelectionBasicOverlay = nil
     }
 
     // MARK: - Module API
@@ -109,9 +115,7 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
     public func removeAimedBarcodeBrushProvider() {
         aimedBrushProviderFlag = false
         aimedBrushProvider.clearCache()
-        if let overlay: BarcodeSelectionBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            overlay.setAimedBarcodeBrushProvider(nil)
-        }
+        barcodeSelectionBasicOverlay?.setAimedBarcodeBrushProvider(nil)
     }
 
     public func finishBrushForAimedBarcode(brushJson: String?, selectionIdentifier: String?) {
@@ -123,7 +127,7 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
     }
 
     public func setTextForAimToSelectAutoHint(text:String, result: FrameworksResult) {
-        guard let overlay: BarcodeSelectionBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType()  else {
+        guard let overlay = barcodeSelectionBasicOverlay else {
             result.reject(error: BarcodeSelectionError.nilOverlay)
             return
         }
@@ -139,9 +143,7 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
     public func removeTrackedBarcodeBrushProvider() {
         trackedBrushProviderFlag = false
         trackedBrushProvider.clearCache()
-        if let overlay: BarcodeSelectionBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() {
-            overlay.setTrackedBarcodeBrushProvider(nil)
-        }
+        barcodeSelectionBasicOverlay?.setTrackedBarcodeBrushProvider(nil)
     }
 
     public func selectAimedBarcode() {
@@ -204,10 +206,14 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
     
     private func onModeRemovedFromContext() {
         barcodeSelection = nil
+        if let basicOverlay = self.barcodeSelectionBasicOverlay, let dataCaptureView = self.dataCaptureView {
+            dataCaptureView.removeOverlay(basicOverlay)
+        }
+        self.barcodeSelectionBasicOverlay = nil
     }
     
     public func updateBasicOverlay(overlayJson: String, result: FrameworksResult) {
-        guard let overlay: BarcodeSelectionBasicOverlay = DataCaptureViewHandler.shared.findFirstOverlayOfType() else {
+        guard let overlay = self.barcodeSelectionBasicOverlay else {
             result.success(result: nil)
             return
         }
@@ -256,13 +262,15 @@ extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {
     public func barcodeSelectionDeserializer(_ deserializer: BarcodeSelectionDeserializer,
                                              didFinishDeserializingBasicOverlay overlay: BarcodeSelectionBasicOverlay,
                                              from jsonValue: JSONValue) {
+        barcodeSelectionBasicOverlay = overlay
+        
 
-        if trackedBrushProviderFlag {
-            overlay.setTrackedBarcodeBrushProvider(trackedBrushProvider)
+        if let barcodeSelectionBasicOverlay = barcodeSelectionBasicOverlay, trackedBrushProviderFlag {
+            barcodeSelectionBasicOverlay.setTrackedBarcodeBrushProvider(trackedBrushProvider)
         }
         
-        if aimedBrushProviderFlag {
-            overlay.setAimedBarcodeBrushProvider(aimedBrushProvider)
+        if let barcodeSelectionBasicOverlay = barcodeSelectionBasicOverlay, aimedBrushProviderFlag {
+            barcodeSelectionBasicOverlay.setAimedBarcodeBrushProvider(aimedBrushProvider)
         }
     }
 }
@@ -271,6 +279,16 @@ extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {
 extension BarcodeSelectionModule: DeserializationLifeCycleObserver {
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
+    }
+    
+    public func dataCaptureView(deserialized view: DataCaptureView?) {
+        self.dataCaptureView = view
+        
+        guard let overlay = barcodeSelectionBasicOverlay, let dcView = view else {
+            return
+        }
+        
+        dcView.addOverlay(overlay)
     }
     
     public func dataCaptureContext(addMode modeJson: String) throws {
@@ -311,7 +329,7 @@ extension BarcodeSelectionModule: DeserializationLifeCycleObserver {
         self.onModeRemovedFromContext()
     }
     
-    public func dataCaptureView(addOverlay overlayJson: String, to view: DataCaptureView) throws {
+    public func dataCaptureView(addOverlay overlayJson: String) throws {
         if  JSONValue(string: overlayJson).string(forKey: "type") != "barcodeSelectionBasic" {
             return
         }
@@ -322,8 +340,30 @@ extension BarcodeSelectionModule: DeserializationLifeCycleObserver {
         
         try dispatchMainSync {
             let overlay = try barcodeSelectionDeserializer.basicOverlay(fromJSONString: overlayJson, withMode: mode)
-            DataCaptureViewHandler.shared.addOverlayToView(view, overlay: overlay)
+            self.dataCaptureView?.addOverlay(overlay)
         }
+    }
+    
+    public func dataCaptureView(removeOverlay overlayJson: String) {
+        if  JSONValue(string: overlayJson).string(forKey: "type") != "barcodeSelectionBasic" {
+            return
+        }
+
+        removeCurrentBasicOverlay()
+    }
+    
+    public func dataCaptureViewRemoveAllOverlays() {
+        removeCurrentBasicOverlay()
+    }
+    
+    private func removeCurrentBasicOverlay() {
+        guard let overlay = self.barcodeSelectionBasicOverlay else {
+            return
+        }
+        dispatchMainSync {
+            self.dataCaptureView?.removeOverlay(overlay)
+        }
+        self.barcodeSelectionBasicOverlay = nil
     }
 }
 

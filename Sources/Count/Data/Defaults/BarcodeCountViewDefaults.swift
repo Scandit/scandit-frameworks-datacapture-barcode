@@ -50,7 +50,7 @@ struct DefaultsBarcodeCountView: DefaultsEncodable {
             "textForMoveFurtherAndRescanHint": ViewDefaults.defaultTextForMoveFurtherAndRescanHint,
             "shouldShowListProgressBar": ViewDefaults.defaultShouldShowListProgressBar,
             "shouldShowTorchControl": ViewDefaults.defaultShouldShowTorchControl,
-            "torchControlPosition": ViewDefaults.defaultTorchControlPosition.jsonString
+            "torchControlPosition": ViewDefaults.defaultTorchControlPosition
         ]
     }
 }

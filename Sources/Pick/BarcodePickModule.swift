@@ -63,6 +63,16 @@ open class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycl
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
     }
+    
+    public func didDisposeDataCaptureContext() {
+        self.context = nil
+        self.barcodePickView?.uiDelegate = nil
+        self.barcodePickView?.removeListener(viewListener)
+        self.barcodePickView?.removeActionListener(actionListener)
+        self.barcodePick?.removeScanningListener(scanningListener)
+        self.asyncMapperProductProviderCallback = nil
+        self.barcodePickView = nil
+    }
 
     public let defaults: DefaultsEncodable = BarcodePickDefaults.shared
 

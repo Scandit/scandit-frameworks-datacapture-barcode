@@ -13,6 +13,7 @@ struct BarcodePickDefaults: DefaultsEncodable {
     private let viewSettingsDefaults: FrameworksBarcodePickViewDefaults
     private let barcodePickViewHighlightStyleDefaults: BarcodePickViewHighlightStyleDefaults
     private let barcodePickSymbologySettingsDefaults: BarcodePickSymbologySettingsDefaults
+    private let barcodePickStatusIconSettingsDefaults: BarcodePickStatusIconSettingsDefaults
 
     func toEncodable() -> [String: Any?] {
         [
@@ -20,7 +21,8 @@ struct BarcodePickDefaults: DefaultsEncodable {
             "BarcodePickSettings": settingsDefaults.toEncodable(),
             "ViewSettings": viewSettingsDefaults.toEncodable(),
             "BarcodePickViewHighlightStyle": barcodePickViewHighlightStyleDefaults.toEncodable(),
-            "SymbologySettings": barcodePickSymbologySettingsDefaults.toEncodable()
+            "SymbologySettings": barcodePickSymbologySettingsDefaults.toEncodable(),
+            "BarcodePickStatusIconSettingsDefaults": barcodePickStatusIconSettingsDefaults.toEncodable()
         ]
     }
 
@@ -32,7 +34,8 @@ struct BarcodePickDefaults: DefaultsEncodable {
             settingsDefaults: FrameworksBarcodePickSettingsDefaults(barcodePickSettings: BarcodePickSettings()),
             viewSettingsDefaults: FrameworksBarcodePickViewDefaults(),
             barcodePickViewHighlightStyleDefaults: .shared,
-            barcodePickSymbologySettingsDefaults: .shared
+            barcodePickSymbologySettingsDefaults: .shared,
+            barcodePickStatusIconSettingsDefaults: .shared
         )
     }()
 }

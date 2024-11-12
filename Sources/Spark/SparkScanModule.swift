@@ -67,6 +67,14 @@ open class SparkScanModule: NSObject, FrameworkModule {
     public func removeSparkScanListener() {
         sparkScanListener.disable()
     }
+    
+    public func addAsyncSparkScanListener() {
+        sparkScanListener.enableAsync()
+    }
+
+    public func removeasyncSparkScanListener() {
+        sparkScanListener.disableAsync()
+    }
 
     public func finishDidUpdateSession(enabled: Bool) {
         sparkScanListener.finishDidUpdate(enabled: enabled)
@@ -195,16 +203,17 @@ open class SparkScanModule: NSObject, FrameworkModule {
         }
     }
 
-    public func emitFeedback(feedbackJson: String, result: FrameworksResult) {
-        // Noop operation on the native sdk so we avoid calling anything here
-        result.success()
-    }
-
     public func pauseScanning() {
         dispatchMain { [weak self] in
             self?.sparkScanView?.pauseScanning()
         }
 
+    }
+    
+    public func stopScanning() {
+        dispatchMain { [weak self] in
+            self?.sparkScanView?.stopScanning()
+        }
     }
 
     public func startScanning(result: FrameworksResult) {
@@ -221,7 +230,7 @@ open class SparkScanModule: NSObject, FrameworkModule {
         }
     }
 
-    public func onResume(result: FrameworksResult) {
+    public func prepareScanning(result: FrameworksResult) {
         dispatchMain { [weak self] in
             guard let self = self else { return }
             guard let view = self.sparkScanView else {
@@ -288,9 +297,17 @@ open class SparkScanModule: NSObject, FrameworkModule {
     }
 
     public func disposeView() {
-        sparkScanView?.removeFromSuperview()
-        sparkScanView?.uiDelegate = nil
-        sparkScanView = nil
+        dispatchMainSync {
+            sparkScanView?.removeFromSuperview()
+            sparkScanView?.uiDelegate = nil
+            sparkScanView = nil
+        }
+    }
+    
+    public func getLastFrameDataBytes(frameId: String, result: FrameworksResult) {
+        LastFrameData.shared.getLastFrameDataBytes(frameId: frameId) {
+            result.success(result: $0)
+        }
     }
 }
 

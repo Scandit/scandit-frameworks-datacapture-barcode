@@ -381,7 +381,7 @@ extension BarcodeBatchModule: DeserializationLifeCycleObserver {
 
     public func dataCaptureView(addOverlay overlayJson: String, to view: DataCaptureView) throws {
         let overlayType = JSONValue(string: overlayJson).string(forKey: "type")
-        if overlayType != "barcodeBatchBasic" && overlayType != "barcodeTrackingAdvanced" {
+        if overlayType != "barcodeTrackingBasic" && overlayType != "barcodeTrackingAdvanced" {
             return
         }
 

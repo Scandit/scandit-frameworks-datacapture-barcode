@@ -129,7 +129,7 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
                 self.barcodeCountView = view
                 
                 // update feedback in case the update call did run before the creation of the mode
-                if let feedback = barcodeCountFeedback {
+                if let feedback = self.barcodeCountFeedback {
                     dispatchMain { [weak self] in
                         mode.feedback = feedback
                         self?.barcodeCountFeedback = nil

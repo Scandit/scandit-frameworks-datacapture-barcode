@@ -123,17 +123,15 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
                 parent.addSubview(view)
                 
                 if json.object(forKey: "View").getObjectAsBool(forKey: "hasStatusProvider") {
-                    view.setStatusProvider(statusProvider)
+                    view.setStatusProvider(self.statusProvider)
                 }
                 
                 self.barcodeCountView = view
                 
                 // update feedback in case the update call did run before the creation of the mode
                 if let feedback = self.barcodeCountFeedback {
-                    dispatchMain { [weak self] in
-                        mode.feedback = feedback
-                        self?.barcodeCountFeedback = nil
-                    }
+                    mode.feedback = feedback
+                    self.barcodeCountFeedback = nil
                 }
             } catch {
                 result.reject(error: error)
@@ -166,7 +164,7 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     public func addBarcodeCountStatusProvider(result: FrameworksResult) {
         let block = { [weak self] in
             guard let self = self else { return }
-            self.barcodeCountView?.setStatusProvider(statusProvider)
+            self.barcodeCountView?.setStatusProvider(self.statusProvider)
             result.success(result: nil)
         }
         dispatchMainSync(block)

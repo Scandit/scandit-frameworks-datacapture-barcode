@@ -131,6 +131,13 @@ open class SparkScanModule: NSObject, FrameworkModule {
                 return
             }
             do {
+                // Making sure there is no existing view of SparkScan by removing it from the container before adding a new one.
+                for subview in container.subviews {
+                    if subview is SparkScanView {
+                        subview.removeFromSuperview()
+                    }
+                }
+
                 let sparkScanViewJson = json.object(forKey: "SparkScanView")
                 let viewSettingsJson = sparkScanViewJson.object(forKey: "viewSettings")
                 if viewSettingsJson.containsKey("shouldShowOnTopAlways") {
@@ -152,7 +159,10 @@ open class SparkScanModule: NSObject, FrameworkModule {
                 result.reject(error: error)
                 return
             }
-            result.success(result: nil)
+
+            if !result.isResolved() {
+                result.success(result: nil)
+            }
         }
         dispatchMain(block)
     }

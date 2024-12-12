@@ -8,9 +8,9 @@ import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
 public enum FrameworksSparkScanViewUIEvent: String, CaseIterable  {
+    case fastFindButtonTapped = "SparkScanViewUiListener.fastFindButtonTapped"
     case barcodeFindButtonTapped = "SparkScanViewUiListener.barcodeFindButtonTapped"
     case barcodeCountButtonTapped = "SparkScanViewUiListener.barcodeCountButtonTapped"
-    case didChangeViewState = "SparkScanViewUiListener.didChangeViewState"
 }
 
 fileprivate extension Event {
@@ -27,7 +27,7 @@ open class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate 
         self.emitter = emitter
     }
 
-    private let didChangeViewStateEvent = Event(.didChangeViewState)
+    private let fastFindButtonTappedEvent = Event(.fastFindButtonTapped)
     private let barcodeFindButtonTappedEvent = Event(.barcodeFindButtonTapped)
     private let barcodeCountButtonTappedEvent = Event(.barcodeCountButtonTapped)
 
@@ -40,10 +40,10 @@ open class FrameworksSparkScanViewUIListener: NSObject, SparkScanViewUIDelegate 
     public func disable() {
         isEnabled.value = false
     }
-    
-    public func sparkScanView(_ view: SparkScanView, didChange viewState: SparkScanViewState) {
-        guard isEnabled.value, emitter.hasListener(for: didChangeViewStateEvent) else { return }
-        didChangeViewStateEvent.emit(on: emitter, payload: ["state" : viewState.jsonString])
+
+    public func fastFindButtonTapped(in view: SparkScanView) {
+        guard isEnabled.value, emitter.hasListener(for: fastFindButtonTappedEvent) else { return }
+        fastFindButtonTappedEvent.emit(on: emitter, payload: [:])
     }
 
     public func barcodeCountButtonTapped(in view: SparkScanView) {

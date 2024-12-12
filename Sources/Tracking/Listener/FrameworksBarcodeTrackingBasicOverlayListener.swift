@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class FrameworksBarcodeBatchBasicOverlayListener: NSObject, BarcodeBatchBasicOverlayDelegate {
+open class FrameworksBarcodeTrackingBasicOverlayListener: NSObject, BarcodeTrackingBasicOverlayDelegate {
     private let emitter: Emitter
 
     public init(emitter: Emitter) {
@@ -19,7 +19,7 @@ open class FrameworksBarcodeBatchBasicOverlayListener: NSObject, BarcodeBatchBas
     private let brushForTrackedBarcodeEvent = Event(.brushForTrackedBarcode)
     private let didTapOnTrackedBarcodeEvent = Event(.didTapOnTrackedBarcode)
 
-    public func barcodeBatchBasicOverlay(_ overlay: BarcodeBatchBasicOverlay,
+    public func barcodeTrackingBasicOverlay(_ overlay: BarcodeTrackingBasicOverlay,
                                             brushFor trackedBarcode: TrackedBarcode) -> Brush? {
         guard isEnabled.value, emitter.hasListener(for: brushForTrackedBarcodeEvent) else { return overlay.brush }
         brushForTrackedBarcodeEvent.emit(on: emitter,
@@ -27,7 +27,7 @@ open class FrameworksBarcodeBatchBasicOverlayListener: NSObject, BarcodeBatchBas
         return overlay.brush
     }
 
-    public func barcodeBatchBasicOverlay(_ overlay: BarcodeBatchBasicOverlay,
+    public func barcodeTrackingBasicOverlay(_ overlay: BarcodeTrackingBasicOverlay,
                                             didTap trackedBarcode: TrackedBarcode) {
         guard isEnabled.value, emitter.hasListener(for: didTapOnTrackedBarcodeEvent) else { return }
         didTapOnTrackedBarcodeEvent.emit(on: emitter,

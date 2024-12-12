@@ -33,9 +33,6 @@ fileprivate extension Emitter {
 }
 
 open class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListener {
-    private static let asyncTimeoutInterval: TimeInterval = 600 // 10 mins
-    private static let defaultTimeoutInterval: TimeInterval = 2
-    
     private let emitter: Emitter
 
     private let didUpdateSelectionEvent = EventWithResult<Bool>(event: Event(.didUpdateSelection))
@@ -58,20 +55,6 @@ open class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListene
         lastSession = nil
         didUpdateSessionEvent.reset()
         didUpdateSelectionEvent.reset()
-    }
-    
-    public func enableAsync() {
-        [didUpdateSelectionEvent, didUpdateSessionEvent].forEach {
-            $0.timeout = Self.asyncTimeoutInterval
-        }
-        enable()
-    }
-
-    public func disableAsync() {
-        disable()
-        [didUpdateSelectionEvent, didUpdateSessionEvent].forEach {
-            $0.timeout = Self.defaultTimeoutInterval
-        }
     }
 
     public func finishDidSelect(enabled: Bool) {
@@ -101,24 +84,11 @@ open class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListene
                                  frameData: FrameData?) {
         guard isEnabled.value, emitter.hasListener(for: .didUpdateSelection) else { return }
         lastSession = session
-        
-        var frameId: String? = nil
-        
-        if let data = frameData {
-            frameId = LastFrameData.shared.addToCache(frameData: data)
-        }
+        LastFrameData.shared.frameData = frameData
+        defer { LastFrameData.shared.frameData = nil }
 
-        didUpdateSelectionEvent.emit(
-            on: emitter,
-            payload: [
-                "session": session.jsonString,
-                "frameId": frameId
-            ]
-        )
-        
-        if let id = frameId {
-            LastFrameData.shared.removeFromCache(frameId: id)
-        }
+        didUpdateSelectionEvent.emit(on: emitter,
+                                                                  payload: ["session": session.jsonString])
     }
 
     public func barcodeSelection(_ barcodeSelection: BarcodeSelection,
@@ -126,22 +96,10 @@ open class FrameworksBarcodeSelectionListener: NSObject, BarcodeSelectionListene
                                  frameData: FrameData?) {
         guard isEnabled.value, emitter.hasListener(for: .didUpdateSession) else { return }
         lastSession = session
-        var frameId: String? = nil
-        
-        if let data = frameData {
-            frameId = LastFrameData.shared.addToCache(frameData: data)
-        }
+        LastFrameData.shared.frameData = frameData
+        defer { LastFrameData.shared.frameData = nil }
 
-        didUpdateSessionEvent.emit(
-            on: emitter,
-            payload: [
-                "session": session.jsonString,
-                "frameId": frameId
-            ]
-        )
-        
-        if let id = frameId {
-            LastFrameData.shared.removeFromCache(frameId: id)
-        }
+        didUpdateSessionEvent.emit(on: emitter,
+                                                                payload: ["session": session.jsonString])
     }
 }

@@ -67,6 +67,10 @@ open class BarcodeGeneratorModule : NSObject, FrameworkModule, DeserializationLi
             let builder = BarcodeGenerator.qrCodeBarcodeGeneratorBuilder(with: context)
             configureQRCodeBuilder(builder: builder, data: data)
             return builder
+        case "aztecGenerator":
+            let builder = BarcodeGenerator.aztecBarcodeGeneratorBuilder(with: context)
+            configureAztecBuilder(builder: builder, data: data)
+            return builder
         default:
             return nil
         }
@@ -78,6 +82,16 @@ open class BarcodeGeneratorModule : NSObject, FrameworkModule, DeserializationLi
         }
         if let versionNumber = data.versionNumber {
             builder.versionNumber = versionNumber
+        }
+    }
+    
+    private func configureAztecBuilder(builder: AztecBarcodeGeneratorBuilder, data: BarcodeGeneratorDataParser) {
+        if let minimumErrorCorrectionPercent = data.minimumErrorCorrectionPercent {
+            builder.minimumErrorCorrectionPercent = minimumErrorCorrectionPercent
+        }
+        
+        if let layers = data.layers {
+            builder.layers = layers
         }
     }
     

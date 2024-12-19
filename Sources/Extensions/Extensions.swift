@@ -16,16 +16,3 @@ public extension ScanIntention {
         }
     }
 }
-
-
-extension Dictionary {
-    func encodeToJSONString() -> String? {
-        do {
-            let data = try JSONSerialization.data(withJSONObject: self, options: [])
-            return String(data: data, encoding: .utf8)
-        } catch {
-            print("Error encoding dictionary to JSON: \(error)")
-            return nil
-        }
-    }
-}

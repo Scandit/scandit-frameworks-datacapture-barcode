@@ -45,6 +45,9 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) BOOL defaultShouldShowListProgressBar;
 @property (class, nonatomic, readonly) BOOL defaultShouldShowTorchControl;
 @property (class, nonatomic, readonly) SDCAnchor defaultTorchControlPosition;
+@property (class, nonatomic, readonly) BOOL defaultTapToUncountEnabled;
+@property (class, nonatomic, readonly) NSString *defaultTextForTapToUncountHint;
+@property (class, nonatomic, readonly) BOOL defaultShouldShowStatusModeButton;
 @end
 
 NS_ASSUME_NONNULL_END

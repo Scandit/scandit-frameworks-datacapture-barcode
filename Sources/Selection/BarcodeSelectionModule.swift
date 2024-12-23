@@ -67,14 +67,6 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
     public func removeListener() {
         barcodeSelectionListener.disable()
     }
-    
-    public func addAsyncListener() {
-        barcodeSelectionListener.enableAsync()
-    }
-
-    public func removeAsyncListener() {
-        barcodeSelectionListener.disableAsync()
-    }
 
     public func unfreezeCamera() {
         barcodeSelection?.unfreezeCamera()
@@ -210,15 +202,6 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
         }
     }
     
-    public func updateFeedback(feedbackJson: String, result: FrameworksResult) {
-        do {
-            barcodeSelection?.feedback = try BarcodeSelectionFeedback(fromJSONString: feedbackJson)
-            result.success(result: nil)
-        } catch {
-            result.reject(error: error)
-        }
-    }
-    
     private func onModeRemovedFromContext() {
         barcodeSelection = nil
     }
@@ -234,12 +217,6 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
             result.success(result: nil)
         } catch {
             result.reject(error: error)
-        }
-    }
-    
-    public func getLastFrameDataBytes(frameId: String, result: FrameworksResult) {
-        LastFrameData.shared.getLastFrameDataBytes(frameId: frameId) {
-            result.success(result: $0)
         }
     }
 }

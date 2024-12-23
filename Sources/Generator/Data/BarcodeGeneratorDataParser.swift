@@ -13,8 +13,6 @@ struct BarcodeGeneratorDataParser {
     let foregroundColor: UIColor?
     let errorCorrectionLevel: QRCodeErrorCorrectionLevel?
     let versionNumber: Int?
-    let minimumErrorCorrectionPercent: Int?
-    let layers: Int?
     
     init(jsonString: String) {
         let jsonValue = JSONValue(string: jsonString)
@@ -51,7 +49,5 @@ struct BarcodeGeneratorDataParser {
         }
         self.errorCorrectionLevel = errorCorrectionLevel
         self.versionNumber = jsonValue.optionalInt(forKey: "versionNumber")
-        self.minimumErrorCorrectionPercent = jsonValue.optionalInt(forKey: "minimumErrorCorrectionPercent")
-        self.layers = jsonValue.optionalInt(forKey: "layers")
     }
 }

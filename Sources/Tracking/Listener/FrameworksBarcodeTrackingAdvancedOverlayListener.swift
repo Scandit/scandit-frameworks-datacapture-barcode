@@ -7,7 +7,7 @@
 import ScanditBarcodeCapture
 import ScanditFrameworksCore
 
-open class FrameworksBarcodeBatchAdvancedOverlayListener: NSObject, BarcodeBatchAdvancedOverlayDelegate {
+open class FrameworksBarcodeTrackingAdvancedOverlayListener: NSObject, BarcodeTrackingAdvancedOverlayDelegate {
     private let emitter: Emitter
 
     public init(emitter: Emitter) {
@@ -20,7 +20,7 @@ open class FrameworksBarcodeBatchAdvancedOverlayListener: NSObject, BarcodeBatch
     private let anchorForTrackedBarcodeEvent = Event(.anchorForTrackedBarcode)
     private let widgetForTrackedBarcodeEvent = Event(.widgetForTrackedBarcode)
 
-    public func barcodeBatchAdvancedOverlay(_ overlay: BarcodeBatchAdvancedOverlay,
+    public func barcodeTrackingAdvancedOverlay(_ overlay: BarcodeTrackingAdvancedOverlay,
                                                viewFor trackedBarcode: TrackedBarcode) -> UIView? {
         if isEnabled.value, emitter.hasListener(for: widgetForTrackedBarcodeEvent) {
             widgetForTrackedBarcodeEvent.emit(on: emitter,
@@ -29,7 +29,7 @@ open class FrameworksBarcodeBatchAdvancedOverlayListener: NSObject, BarcodeBatch
         return nil
     }
 
-    public func barcodeBatchAdvancedOverlay(_ overlay: BarcodeBatchAdvancedOverlay,
+    public func barcodeTrackingAdvancedOverlay(_ overlay: BarcodeTrackingAdvancedOverlay,
                                                anchorFor trackedBarcode: TrackedBarcode) -> Anchor {
         if isEnabled.value, emitter.hasListener(for: anchorForTrackedBarcodeEvent) {
             anchorForTrackedBarcodeEvent.emit(on: emitter,
@@ -38,7 +38,7 @@ open class FrameworksBarcodeBatchAdvancedOverlayListener: NSObject, BarcodeBatch
         return .center
     }
 
-    public func barcodeBatchAdvancedOverlay(_ overlay: BarcodeBatchAdvancedOverlay,
+    public func barcodeTrackingAdvancedOverlay(_ overlay: BarcodeTrackingAdvancedOverlay,
                                                offsetFor trackedBarcode: TrackedBarcode) -> PointWithUnit {
         if isEnabled.value, emitter.hasListener(for: offsetForTrackedBarcodeEvent) {
             offsetForTrackedBarcodeEvent.emit(on: emitter,

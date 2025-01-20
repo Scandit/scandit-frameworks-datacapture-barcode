@@ -25,6 +25,8 @@ fileprivate extension Emitter {
 }
 
 open class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
+    private static let asyncTimeoutInterval: TimeInterval = 600 // 10 mins
+    private static let defaultTimeoutInterval: TimeInterval = 2
 
     private let emitter: Emitter
 
@@ -43,10 +45,17 @@ open class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
         guard isEnabled.value, emitter.hasListener(for: .barcodeScanned) else { return }
         latestSession = session
 
-        LastFrameData.shared.frameData = frameData
-        defer { LastFrameData.shared.frameData = nil }
+        let frameId = LastFrameData.shared.addToCache(frameData: frameData)
 
-        barcodeScannedEvent.emit(on: emitter, payload: ["session": session.jsonString])
+        barcodeScannedEvent.emit(
+            on: emitter,
+            payload: [
+                "session": session.jsonString,
+                "frameId": frameId
+            ]
+        )
+        
+        LastFrameData.shared.removeFromCache(frameId: frameId)
     }
 
     public func finishDidScan(enabled: Bool) {
@@ -59,10 +68,17 @@ open class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
         guard isEnabled.value, emitter.hasListener(for: FrameworksBarcodeCaptureEvent.sessionUpdated) else { return }
         latestSession = session
 
-        LastFrameData.shared.frameData = frameData
-        defer { LastFrameData.shared.frameData = nil }
+        let frameId = LastFrameData.shared.addToCache(frameData: frameData)
 
-        sessionUpdatedEvent.emit(on: emitter, payload: ["session": session.jsonString])
+        sessionUpdatedEvent.emit(
+            on: emitter,
+            payload: [
+                "session": session.jsonString,
+                "frameId": frameId
+            ]
+        )
+        
+        LastFrameData.shared.removeFromCache(frameId: frameId)
     }
 
     public func finishDidUpdateSession(enabled: Bool) {
@@ -89,5 +105,19 @@ open class FrameworksBarcodeCaptureListener: NSObject, BarcodeCaptureListener {
         latestSession = nil
         barcodeScannedEvent.reset()
         sessionUpdatedEvent.reset()
+    }
+    
+    public func enableAsync() {
+        [barcodeScannedEvent, sessionUpdatedEvent].forEach {
+            $0.timeout = Self.asyncTimeoutInterval
+        }
+        enable()
+    }
+
+    public func disableAsync() {
+        disable()
+        [barcodeScannedEvent, sessionUpdatedEvent].forEach {
+            $0.timeout = Self.defaultTimeoutInterval
+        }
     }
 }

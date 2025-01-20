@@ -52,6 +52,14 @@ open class BarcodeCaptureModule: NSObject, FrameworkModule {
     public func removeListener() {
         barcodeCaptureListener.disable()
     }
+    
+    public func addAsyncListener() {
+        barcodeCaptureListener.enableAsync()
+    }
+
+    public func removeAsyncListener() {
+        barcodeCaptureListener.disableAsync()
+    }
 
     public func finishDidScan(enabled: Bool) {
         barcodeCaptureListener.finishDidScan(enabled: enabled)
@@ -121,6 +129,12 @@ open class BarcodeCaptureModule: NSObject, FrameworkModule {
             result.success(result: nil)
         } catch {
             result.reject(error: error)
+        }
+    }
+    
+    public func getLastFrameDataBytes(frameId: String, result: FrameworksResult) {
+        LastFrameData.shared.getLastFrameDataBytes(frameId: frameId) {
+            result.success(result: $0)
         }
     }
 }

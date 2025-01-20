@@ -19,7 +19,8 @@ fileprivate extension Event {
 }
 
 open class FrameworksSparkScanListener: NSObject, SparkScanListener {
-
+    private static let asyncTimeoutInterval: TimeInterval = 600 // 10 mins
+    private static let defaultTimeoutInterval: TimeInterval = 2
     private let emitter: Emitter
 
     private let didScanEvent = EventWithResult<Bool>(event: Event(.didScan))
@@ -38,6 +39,20 @@ open class FrameworksSparkScanListener: NSObject, SparkScanListener {
         lastSession = nil
     }
 
+    public func enableAsync() {
+        [didScanEvent, didUpdateEvent].forEach {
+            $0.timeout = Self.asyncTimeoutInterval
+        }
+        enable()
+    }
+
+    public func disableAsync() {
+        disable()
+        [didScanEvent, didUpdateEvent].forEach {
+            $0.timeout = Self.defaultTimeoutInterval
+        }
+    }
+
     private var lastSession: SparkScanSession?
 
     public init(emitter: Emitter) {
@@ -49,10 +64,23 @@ open class FrameworksSparkScanListener: NSObject, SparkScanListener {
                           frameData: FrameData?) {
         guard isEnabled.value, emitter.hasListener(for: FrameworksSparkScanEvent.didScan.rawValue) else { return }
         lastSession = session
-        LastFrameData.shared.frameData = frameData
-        defer { LastFrameData.shared.frameData = nil }
+        var frameId: String? = nil
 
-        didScanEvent.emit(on: emitter, payload: ["session": session.jsonString])
+        if let data = frameData {
+            frameId = LastFrameData.shared.addToCache(frameData: data)
+        }
+
+        didScanEvent.emit(
+            on: emitter,
+            payload: [
+                "session": session.jsonString,
+                "frameId": frameId
+            ]
+        )
+
+        if let id = frameId {
+            LastFrameData.shared.removeFromCache(frameId: id)
+        }
     }
 
     public func finishDidScan(enabled: Bool) {
@@ -64,10 +92,23 @@ open class FrameworksSparkScanListener: NSObject, SparkScanListener {
                           frameData: FrameData?) {
         guard isEnabled.value, emitter.hasListener(for: FrameworksSparkScanEvent.didUpdate.rawValue) else { return }
         lastSession = session
-        LastFrameData.shared.frameData = frameData
-        defer { LastFrameData.shared.frameData = nil }
+        var frameId: String? = nil
 
-        didUpdateEvent.emit(on: emitter, payload: ["session": session.jsonString])
+        if let data = frameData {
+            frameId = LastFrameData.shared.addToCache(frameData: data)
+        }
+
+        didUpdateEvent.emit(
+            on: emitter,
+            payload: [
+                "session": session.jsonString,
+                "frameId": frameId
+            ]
+        )
+
+        if let id = frameId {
+            LastFrameData.shared.removeFromCache(frameId: id)
+        }
     }
 
     public func finishDidUpdate(enabled: Bool) {

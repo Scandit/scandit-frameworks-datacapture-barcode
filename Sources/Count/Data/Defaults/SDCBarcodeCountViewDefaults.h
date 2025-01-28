@@ -25,7 +25,6 @@ SDC_EXPORTED_SYMBOL
 @property (class, nonatomic, readonly) BOOL defaultShouldShowToolbar;
 @property (class, nonatomic, readonly) NSString *defaultExitButtonText;
 @property (class, nonatomic, readonly) NSString *defaultClearHighlightsButtonText;
-@property (class, nonatomic, readonly) NSString *defaultTextForUnrecognizedBarcodesDetectedHint;
 @property (class, nonatomic, readonly) NSString *defaultTextForTapShutterToScanHint;
 @property (class, nonatomic, readonly) NSString *defaultTextForScanningHint;
 @property (class, nonatomic, readonly) NSString *defaultTextForMoveCloserAndRescanHint;

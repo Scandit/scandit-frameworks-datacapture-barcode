@@ -84,8 +84,9 @@ open class BarcodeSelectionModule: NSObject, FrameworkModule {
         barcodeSelection?.reset()
     }
 
-    public func getBarcodeCount(selectionIdentifier: String) -> Int {
-        barcodeSelectionListener.getBarcodeCount(selectionIdentifier: selectionIdentifier)
+    public func submitBarcodeCountForIdentifier(selectionIdentifier: String, result: FrameworksResult) {
+        let count = barcodeSelectionListener.getBarcodeCount(selectionIdentifier: selectionIdentifier)
+        result.success(result: count)
     }
 
     public func resetLatestSession(frameSequenceId: Int?) {
@@ -287,6 +288,26 @@ extension BarcodeSelectionModule: BarcodeSelectionDeserializerDelegate {
         if aimedBrushProviderFlag {
             overlay.setAimedBarcodeBrushProvider(aimedBrushProvider)
         }
+        
+        if jsonValue.containsKey("textForSelectOrDoubleTapToFreezeHint") {
+            overlay.setTextForSelectOrDoubleTapToFreezeHint(jsonValue.string(forKey: "textForSelectOrDoubleTapToFreezeHint", default: ""))
+        }
+        
+        if jsonValue.containsKey("textForTapToSelectHint") {
+            overlay.setTextForTapToSelectHint(jsonValue.string(forKey: "textForTapToSelectHint", default: ""))
+        }
+        
+        if jsonValue.containsKey("textForDoubleTapToUnfreezeHint") {
+            overlay.setTextForDoubleTapToUnfreezeHint(jsonValue.string(forKey: "textForDoubleTapToUnfreezeHint", default: ""))
+        }
+        
+        if jsonValue.containsKey("textForTapAnywhereToSelectHint") {
+            overlay.setTextForTapAnywhereToSelectHint(jsonValue.string(forKey: "textForTapAnywhereToSelectHint", default: ""))
+        }
+        
+        if jsonValue.containsKey("textForAimToSelectAutoHint") {
+            overlay.setTextForAimToSelectAutoHint(jsonValue.string(forKey: "textForAimToSelectAutoHint", default: ""))
+        }
     }
 }
 
@@ -326,7 +347,6 @@ extension BarcodeSelectionModule: DeserializationLifeCycleObserver {
     }
     
     public func dataCaptureContextAllModeRemoved() {
-        self.context = nil
         self.onModeRemovedFromContext()
     }
     

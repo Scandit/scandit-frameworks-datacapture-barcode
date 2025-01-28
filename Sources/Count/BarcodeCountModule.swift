@@ -33,13 +33,13 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     }
 
     private var context: DataCaptureContext?
-    
+
     private var modeEnabled = true
 
     public var barcodeCountView: BarcodeCountView?
 
     private var barcodeCountCaptureList: BarcodeCountCaptureList?
-    
+
     private var barcodeCountFeedback: BarcodeCountFeedback?
 
     private var barcodeCount: BarcodeCount? {
@@ -69,7 +69,7 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
     }
-    
+
     public func didDisposeDataCaptureContext() {
         self.context = nil
         self.barcodeCountView?.delegate = nil
@@ -121,13 +121,13 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
                 view.uiDelegate = self.viewUiListener
                 view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
                 parent.addSubview(view)
-                
+
                 if json.object(forKey: "View").getObjectAsBool(forKey: "hasStatusProvider") {
                     view.setStatusProvider(self.statusProvider)
                 }
-                
+
                 self.barcodeCountView = view
-                
+
                 // update feedback in case the update call did run before the creation of the mode
                 if let feedback = self.barcodeCountFeedback {
                     mode.feedback = feedback
@@ -160,7 +160,15 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
         }
         dispatchMainSync(block)
     }
-    
+
+    public func removeBarcodeCountView(result: FrameworksResult) {
+        removeBarcodeCountListener()
+        removeBarcodeCountViewListener(result: NoopFrameworksResult())
+        removeBarcodeCountViewUiListener(result: NoopFrameworksResult())
+        disposeBarcodeCountView()
+        result.success(result: nil)
+    }
+
     public func addBarcodeCountStatusProvider(result: FrameworksResult) {
         let block = { [weak self] in
             guard let self = self else { return }
@@ -239,14 +247,25 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
         }
     }
 
-    public func finishBrushForUnrecognizedBarcodeEvent(brush: Brush?, trackedBarcodeId: Int, result: FrameworksResult) {
-        dispatchMainSync { [weak self] in
+    public func finishBrushForAcceptedBarcodeEvent(brush: Brush?, trackedBarcodeId: Int) {
+        dispatchMainSync{ [weak self] in
             let barcode = self?.viewListener.getTrackedBarcodeForBrush(with: trackedBarcodeId,
-                                                                       for: .brushForUnrecognizedBarcode)
+                                                                       for: .brushForAcceptedBarcode)
+
             if let trackedBarcode = barcode, let brush = brush {
-                self?.barcodeCountView?.setBrush(brush, forUnrecognizedBarcode: trackedBarcode)
+                self?.barcodeCountView?.setBrush(brush, forAcceptedBarcode: trackedBarcode)
             }
-            result.success(result: nil)
+        }
+    }
+
+    public func finishBrushForRejectedBarcodeEvent(brush: Brush?, trackedBarcodeId: Int) {
+        dispatchMainSync{ [weak self] in
+            let barcode = self?.viewListener.getTrackedBarcodeForBrush(with: trackedBarcodeId,
+                                                                       for: .brushForRejectedBarcode)
+
+            if let trackedBarcode = barcode, let brush = brush {
+                self?.barcodeCountView?.setBrush(brush, forRejectedBarcode: trackedBarcode)
+            }
         }
     }
 
@@ -256,11 +275,11 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
             TargetBarcode(data: $0.string(forKey: "data"), quantity: $0.integer(forKey: "quantity"))
         })
         barcodeCountCaptureList = BarcodeCountCaptureList(listener: captureListListener, targetBarcodes: targetBarcodes)
-        
+
         guard let mode = barcodeCount else {
             return
         }
-        
+
         mode.setCaptureList(barcodeCountCaptureList)
     }
 
@@ -279,7 +298,7 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
     public func removeBarcodeCountListener() {
         barcodeCountListener.disable()
     }
-    
+
     public func addAsyncBarcodeCountListener() {
         barcodeCountListener.enableAsync()
     }
@@ -308,84 +327,75 @@ open class BarcodeCountModule: NSObject, FrameworkModule, DeserializationLifeCyc
         barcodeCount?.removeListener(barcodeCountListener)
         barcodeCount = nil
     }
-    
-    public func getSpatialMap() -> BarcodeSpatialGrid? {
-        return barcodeCountListener.getSpatialMap()
+
+    public func submitSpatialMap(result: FrameworksResult) {
+        result.success(result: barcodeCountListener.getSpatialMap()?.jsonString)
     }
-    
-    public func getSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int) -> BarcodeSpatialGrid? {
-        return barcodeCountListener.getSpatialMap(expectedNumberOfRows: expectedNumberOfRows, expectedNumberOfColumns: expectedNumberOfColumns)
+
+    public func submitSpatialMap(expectedNumberOfRows: Int, expectedNumberOfColumns: Int, result: FrameworksResult) {
+        result.success(
+            result: barcodeCountListener.getSpatialMap(
+                expectedNumberOfRows: expectedNumberOfRows,
+                expectedNumberOfColumns: expectedNumberOfColumns
+            )?.jsonString
+        )
     }
-    
+
     public func setModeEnabled(enabled: Bool) {
         modeEnabled = enabled
         barcodeCount?.isEnabled = enabled
     }
-    
+
     public func isModeEnabled() -> Bool {
         return barcodeCount?.isEnabled == true
     }
-    
+
     public func updateFeedback(feedbackJson: String, result: FrameworksResult) {
         guard let jsonData = feedbackJson.data(using: .utf8) else {
             result.reject(code: "-1", message: "Invalid feedback json", details: nil)
             return
         }
-        
+
         do {
             if let json = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
                 let newFeedback = barcodeCount?.feedback ?? BarcodeCountFeedback.default
-                
+
                 if let successData = json["success"] as? [String: Any] {
                     if let success = successData.encodeToJSONString() {
                         newFeedback.success = try Feedback(fromJSONString: success)
                     }
                 }
-                
+
                 if let failureData = json["failure"] as? [String: Any] {
                     if let failure = failureData.encodeToJSONString() {
                         newFeedback.failure = try Feedback(fromJSONString: failure)
                     }
                 }
-                
+
                 barcodeCountFeedback = newFeedback
             }
-            
+
             // in case we don't have a mode yet, it will return success and cache the new
             // feedback to be applied after the creation of the view.
              if let mode = barcodeCount, let feedback = barcodeCountFeedback {
                 mode.feedback = feedback
                 barcodeCountFeedback = nil
             }
-        
+
             result.success()
         } catch let error {
             result.reject(error: error)
         }
     }
-    
+
     public func submitBarcodeCountStatusProviderCallbackResult(statusJson: String, result: FrameworksResult) {
         statusProvider.submitCallbackResult(resultJson: statusJson)
         result.success()
     }
-    
+
     public func getLastFrameDataBytes(frameId: String, result: FrameworksResult) {
         LastFrameData.shared.getLastFrameDataBytes(frameId: frameId) {
             result.success(result: $0)
         }
-    }
-}
-
-private extension JSONValue {
-    func getObjectAsString(forKey: String) -> String {
-        if self.containsObject(withKey: forKey) {
-            return self.object(forKey: forKey).jsonString()
-        }
-        
-        return self.string(forKey: forKey)
-    }
-    
-    func getObjectAsBool(forKey: String) -> Bool {
-        return self.bool(forKey: forKey, default: false)
     }
 }

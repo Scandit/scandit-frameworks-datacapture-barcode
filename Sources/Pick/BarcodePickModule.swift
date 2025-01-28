@@ -63,7 +63,7 @@ open class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycl
     public func dataCaptureContext(deserialized context: DataCaptureContext?) {
         self.context = context
     }
-    
+
     public func didDisposeDataCaptureContext() {
         self.context = nil
         self.barcodePickView?.uiDelegate = nil
@@ -157,6 +157,15 @@ open class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycl
         dispatchMain(block)
     }
 
+    public func removeBarcodePickView(result: FrameworksResult) {
+        actionListener.disable()
+        viewListener.disable()
+        viewUiListener.disable()
+        barcodePickView?.stop()
+        barcodePickView?.removeFromSuperview()
+        result.success(result: nil)
+    }
+
     public func addScanningListener() {
         scanningListener.enable()
     }
@@ -172,7 +181,7 @@ open class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycl
     public func removeActionListener() {
         actionListener.disable()
     }
-    
+
     public func addViewListener() {
         viewListener.enable()
     }
@@ -216,7 +225,7 @@ open class BarcodePickModule: NSObject, FrameworkModule, DeserializationLifeCycl
     public func viewFreeze() {
         barcodePickView?.freeze()
     }
-    
+
     public func viewStop() {
         barcodePickView?.stop()
     }

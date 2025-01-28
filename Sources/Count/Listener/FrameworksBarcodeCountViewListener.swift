@@ -28,12 +28,14 @@ fileprivate extension Emitter {
 public enum BarcodeCountViewListenerEvent: String {
     case brushForRecognizedBarcode = "BarcodeCountViewListener.brushForRecognizedBarcode"
     case brushForRecognizedBarcodeNotInList = "BarcodeCountViewListener.brushForRecognizedBarcodeNotInList"
-    case brushForUnrecognizedBarcode = "BarcodeCountViewListener.brushForUnrecognizedBarcode"
+    case brushForAcceptedBarcode = "BarcodeCountViewListener.brushForAcceptedBarcode"
+    case brushForRejectedBarcode = "BarcodeCountViewListener.brushForRejectedBarcode"
 
     case didTapRecognizedBarcode = "BarcodeCountViewListener.didTapRecognizedBarcode"
-    case didTapUnrecognizedBarcode = "BarcodeCountViewListener.didTapUnrecognizedBarcode"
     case didTapFilteredBarcode = "BarcodeCountViewListener.didTapFilteredBarcode"
     case didTapRecognizedBarcodeNotInList = "BarcodeCountViewListener.didTapRecognizedBarcodeNotInList"
+    case didTapAcceptedBarcode = "BarcodeCountViewListener.didTapAcceptedBarcode"
+    case didTapRejectedBarcode = "BarcodeCountViewListener.didTapRejectedBarcode"
 }
 
 open class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegate {
@@ -41,12 +43,14 @@ open class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegat
 
     private let brushForRecognizedBarcodeEvent = Event(.brushForRecognizedBarcode)
     private let brushForRecognizedBarcodeNotInListEvent = Event(.brushForRecognizedBarcodeNotInList)
-    private let brushForUnrecognizedBarcodeEvent = Event(.brushForUnrecognizedBarcode)
+    private let brushForAcceptedBarcodeEvent = Event(.brushForAcceptedBarcode)
+    private let brushForRejectedBarcodeEvent = Event(.brushForRejectedBarcode)
 
     private let didTapRecognizedBarcodeEvent = Event(.didTapRecognizedBarcode)
-    private let didTapUnrecognizedBarcodeEvent = Event(.didTapUnrecognizedBarcode)
     private let didTapFilteredBarcodeEvent = Event(.didTapFilteredBarcode)
     private let didTapRecognizedBarcodeNotInListEvent = Event(.didTapRecognizedBarcodeNotInList)
+    private let didTapAcceptedBarcodeEvent = Event(.didTapAcceptedBarcode)
+    private let didTapRejectedBarcodeEvent = Event(.didTapRejectedBarcode)
 
     private var brushRequests: [String: TrackedBarcode] = [:]
 
@@ -60,16 +64,20 @@ open class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegat
             return brushForRecognizedBarcodeEvent
         case .brushForRecognizedBarcodeNotInList:
             return brushForRecognizedBarcodeNotInListEvent
-        case .brushForUnrecognizedBarcode:
-            return brushForUnrecognizedBarcodeEvent
+        case .brushForAcceptedBarcode:
+            return brushForAcceptedBarcodeEvent
+        case .brushForRejectedBarcode:
+            return brushForRejectedBarcodeEvent
         case .didTapRecognizedBarcode:
             return didTapRecognizedBarcodeEvent
-        case .didTapUnrecognizedBarcode:
-            return didTapUnrecognizedBarcodeEvent
         case .didTapFilteredBarcode:
             return didTapFilteredBarcodeEvent
         case .didTapRecognizedBarcodeNotInList:
             return didTapRecognizedBarcodeNotInListEvent
+        case .didTapAcceptedBarcode:
+            return didTapAcceptedBarcodeEvent
+        case .didTapRejectedBarcode:
+            return didTapRejectedBarcodeEvent
         }
     }
 
@@ -108,9 +116,15 @@ open class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegat
         brush(for: trackedBarcode, event: .brushForRecognizedBarcodeNotInList)
     }
 
+
     public func barcodeCountView(_ view: BarcodeCountView,
-                                 brushForUnrecognizedBarcode trackedBarcode: TrackedBarcode) -> Brush? {
-        brush(for: trackedBarcode, event: .brushForUnrecognizedBarcode)
+                                brushForAcceptedBarcode trackedBarcode: TrackedBarcode) -> Brush? {
+    brush(for: trackedBarcode, event: .brushForAcceptedBarcode)
+    }
+
+    public func barcodeCountView(_ view: BarcodeCountView,
+                                brushForRejectedBarcode trackedBarcode: TrackedBarcode) -> Brush? {
+    brush(for: trackedBarcode, event: .brushForRejectedBarcode)
     }
 
     public func barcodeCountView(_ view: BarcodeCountView,
@@ -129,8 +143,13 @@ open class FrameworksBarcodeCountViewListener: NSObject, BarcodeCountViewDelegat
     }
 
     public func barcodeCountView(_ view: BarcodeCountView,
-                                 didTapUnrecognizedBarcode trackedBarcode: TrackedBarcode) {
-        emit(event: .didTapUnrecognizedBarcode, for: trackedBarcode)
+                                 didTapAcceptedBarcode trackedBarcode: TrackedBarcode) {
+        emit(event: .didTapAcceptedBarcode, for: trackedBarcode)
+    }
+
+    public func barcodeCountView(_ view: BarcodeCountView,
+                                 didTapRejectedBarcode trackedBarcode: TrackedBarcode) {
+        emit(event: .didTapRejectedBarcode, for: trackedBarcode)
     }
 
     public func clearCache() {

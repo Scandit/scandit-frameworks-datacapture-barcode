@@ -12,7 +12,8 @@ struct BarcodeCaptureSettingsDefaults: DefaultsEncodable {
 
     func toEncodable() -> [String: Any?] {
         [
-            "codeDuplicateFilter": Int(barcodeCaptureSettings.codeDuplicateFilter * 1000),
+            "codeDuplicateFilter": barcodeCaptureSettings.codeDuplicateFilter <= 0 ?
+            barcodeCaptureSettings.codeDuplicateFilter : Int(barcodeCaptureSettings.codeDuplicateFilter * 1000),
             "batterySaving": barcodeCaptureSettings.batterySaving.jsonString,
             "scanIntention": barcodeCaptureSettings.scanIntention.jsonString
         ]

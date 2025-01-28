@@ -10,12 +10,15 @@ import ScanditBarcodeCapture
 struct FrameworksBarcodeFindViewDefaults: DefaultsEncodable {
     func toEncodable() -> [String: Any?] {
         [
-            "shouldShowUserGuidanceView": BarcodeFindViewDefaults.defaultShouldShowUserGuidanceView,
-            "shouldShowHints": BarcodeFindViewDefaults.defaultShouldShowHints,
+            "hardwareTriggerSupported": true,
             "shouldShowCarousel": BarcodeFindViewDefaults.defaultShouldShowCarousel,
-            "shouldShowPauseButton": BarcodeFindViewDefaults.defaultShouldShowPauseButton,
             "shouldShowFinishButton": BarcodeFindViewDefaults.defaultShouldShowFinishButton,
+            "shouldShowHints": BarcodeFindViewDefaults.defaultShouldShowHints,
+            "shouldShowPauseButton": BarcodeFindViewDefaults.defaultShouldShowPauseButton,
             "shouldShowProgressBar": BarcodeFindViewDefaults.defaultShouldShowProgressBar,
+            "shouldShowUserGuidanceView": BarcodeFindViewDefaults.defaultShouldShowUserGuidanceView,
+            "shouldShowTorchControl": BarcodeFindViewDefaults.defaultShouldShowTorchControl,
+            "shouldShowZoomControl": BarcodeFindViewDefaults.defaultShouldShowZoomControl,
             "textForCollapseCardsButton": BarcodeFindViewDefaults.defaultTextForCollapseCardsButton,
             "textForAllItemsFoundSuccessfullyHint": BarcodeFindViewDefaults.defaultTextForAllItemsFoundSuccessfullyHint,
             "textForPointAtBarcodesToSearchHint": BarcodeFindViewDefaults.defaultTextForPointAtBarcodesToSearchHint,

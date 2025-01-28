@@ -12,7 +12,8 @@ struct SparkScanSettingsDefaults: DefaultsEncodable {
 
     func toEncodable() -> [String: Any?] {
         [
-            "codeDuplicateFilter": Int(sparkScanSettings.codeDuplicateFilter * 1000),
+            "codeDuplicateFilter": sparkScanSettings.codeDuplicateFilter <= 0 ?
+            sparkScanSettings.codeDuplicateFilter : Int(sparkScanSettings.codeDuplicateFilter * 1000),
             "singleBarcodeAutoDetection": false,
             "batterySaving": sparkScanSettings.batterySaving.jsonString,
             "scanIntention": sparkScanSettings.scanIntention.jsonString
